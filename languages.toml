@@ -1,0 +1,82 @@
+# Add a language by copying a block. Every field except name is optional.
+# repos: candidate homes of the main compiler; the most recently active one is treated as canonical.
+# forum.kind: "discourse" or "nimforum".
+
+[[language]]
+name = "Crystal"
+repos = [
+  { host = "github", repo = "crystal-lang/crystal" },
+  { host = "codeberg", repo = "crystal-lang/crystal" },
+]
+subreddit = "crystal_programming"
+forum = { kind = "discourse", url = "https://forum.crystal-lang.org" }
+discord_invite = "YS7YvQy"
+other_platforms = ["X"]
+x_accounts = ["CrystalLanguage"]
+zed = ["crystal"]
+vscode = ["crystal-lang-tools.crystal-lang"]
+openvsx = ["crystal-lang-tools.crystal-lang"]
+lsp = { name = "Crystalline", repo = "elbywan/crystalline" }
+lsp_rating = 2
+lsp_notes = "Stable Zed plugin is not full featured; the development one needs careful installation and is buggy."
+
+[[language]]
+name = "Nim"
+repos = [{ host = "github", repo = "nim-lang/Nim" }]
+subreddit = "nim"
+forum = { kind = "nimforum", url = "https://forum.nim-lang.org" }
+discord_invite = "nim"
+other_platforms = ["X"]
+x_accounts = ["nim_lang"]
+zed = ["nim"]
+vscode = ["NimLang.nimlang", "kosz78.nim"]
+openvsx = ["nimlang.nimlang", "nimsaem.nimvscode"]
+lsp = { name = "nimlangserver", repo = "nim-lang/langserver" }
+
+[[language]]
+name = "Elm"
+repos = [{ host = "github", repo = "elm/compiler" }]
+subreddit = "elm"
+forum = { kind = "discourse", url = "https://discourse.elm-lang.org" }
+other_platforms = ["Slack", "X"]
+x_accounts = ["elmlang", "evancz"]
+zed = ["elm"]
+vscode = ["Elmtooling.elm-ls-vscode"]
+openvsx = ["Elmtooling.elm-ls-vscode"]
+lsp = { name = "elm-language-server", repo = "elm-tooling/elm-language-server" }
+
+[[language]]
+name = "Roc"
+repos = [{ host = "github", repo = "roc-lang/roc" }]
+github_discussions = "roc-lang/roc"
+other_platforms = ["Zulip"]
+zed = ["roc"]
+vscode = ["IvanDemchenko.roc-lang-unofficial"]
+openvsx = ["IvanDemchenko.roc-lang-unofficial"]
+lsp = { name = "roc language server (in compiler repo)", repo = "roc-lang/roc" }
+
+[[language]]
+name = "Elixir"
+repos = [{ host = "github", repo = "elixir-lang/elixir" }]
+subreddit = "elixir"
+forum = { kind = "discourse", url = "https://forum.elixirforum.com" }
+discord_invite = "elixir"
+other_platforms = ["Slack", "X"]
+x_accounts = ["elixirlang", "josevalim"]
+zed = ["elixir"]
+vscode = ["JakeBecker.elixir-ls", "lexical-lsp.lexical"]
+openvsx = ["elixir-lsp.elixir-ls", "lexical-lsp.lexical"]
+lsp = { name = "Expert", repo = "elixir-lang/expert" }
+
+[[language]]
+name = "Gleam"
+repos = [{ host = "github", repo = "gleam-lang/gleam" }]
+subreddit = "gleamlang"
+discord_invite = "Fm8Pwmy"
+github_discussions = "gleam-lang/gleam"
+other_platforms = ["X"]
+x_accounts = ["gleamlang"]
+zed = ["gleam"]
+vscode = ["Gleam.gleam"]
+openvsx = ["Gleam.gleam"]
+lsp = { name = "gleam lsp (in compiler repo)", repo = "gleam-lang/gleam" }
