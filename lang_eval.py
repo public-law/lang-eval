@@ -19,8 +19,14 @@ import urllib.parse
 import urllib.request
 import xml.etree.ElementTree as ET
 from collections import Counter
+from collections.abc import Callable, Iterable
+from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
+from typing import Any, NotRequired, TypedDict
+
+type JSON = Any
+type Params = dict[str, str | int | None]
 
 ROOT = Path(__file__).parent
 CONFIG = ROOT / "languages.toml"
@@ -30,8 +36,10 @@ NOW = datetime.now(timezone.utc)
 UA = "lang-eval/0.1 (+https://github.com/public-law/lang-eval)"
 TOKEN = os.environ.get("GITHUB_TOKEN") or os.environ.get("GH_TOKEN")
 
+type Rule = tuple[str, str, bool | None, list[float] | None]
+
 # Each rule: (label, unit, higher_is_better, thresholds for scores 5,4,3,2; anything else scores 1)
-RULES = {
+RULES: dict[str, Rule] = {
     "days_since_commit": ("Days since last commit", "days", False, [7, 30, 90, 365]),
     "commits_90d": ("Commits, last 90 days", "commits", True, [300, 100, 30, 5]),
     "days_since_release": ("Days since last release", "days", False, [60, 180, 365, 730]),
@@ -61,7 +69,7 @@ RULES = {
     "lsp_commits_90d": ("Language server commits, 90 days", "commits", True, [50, 20, 8, 2]),
     "lsp_rating": ("Language server completeness (manual)", "/5", True, [5, 4, 3, 2]),
 }
-CATEGORIES = {
+CATEGORIES: dict[str, list[str]] = {
     "Development": ["days_since_commit", "commits_90d", "days_since_release", "authors_90d", "authors_12m",
                     "mergers_90d", "top_share_12m", "outside_merged_90d", "outside_accept_90d", "outside_open"],
     "Community": ["reddit_per_week", "forum_posts_7d", "forum_topics_7d", "discussions_30d", "discord_members",
@@ -72,15 +80,87 @@ CATEGORIES = {
 STALE_DAYS = 90
 
 
-def main():
-    langs = tomllib.loads(CONFIG.read_text())["language"]
+
+class Metric(TypedDict):
+    value: float | None
+    source: str | None
+    note: str | None
+    display: NotRequired[str | None]
+    measured_at: NotRequired[str]
+    cached_from: NotRequired[str | None]
+
+
+type Metrics = dict[str, Metric]
+
+
+class Repo(TypedDict):
+    host: str
+    repo: str
+    api: NotRequired[str]
+
+
+class RepoInfo(TypedDict):
+    mirror: bool
+    pushed: str
+    web: str
+
+
+class Canonical(Repo, RepoInfo):
+    pass
+
+
+class Forum(TypedDict):
+    kind: str
+    url: str
+
+
+class Lsp(TypedDict):
+    name: str
+    repo: str
+    path: NotRequired[str]
+    shared: NotRequired[bool]
+
+
+class Language(TypedDict):
+    name: str
+    repos: NotRequired[list[Repo]]
+    subreddit: NotRequired[str]
+    forum: NotRequired[Forum]
+    github_discussions: NotRequired[str]
+    discord_invite: NotRequired[str]
+    other_platforms: NotRequired[list[str]]
+    x_accounts: NotRequired[list[str]]
+    x_notes: NotRequired[str]
+    zed: NotRequired[list[str]]
+    vscode: NotRequired[list[str]]
+    openvsx: NotRequired[list[str]]
+    lsp: NotRequired[Lsp]
+    lsp_rating: NotRequired[int]
+    lsp_notes: NotRequired[str]
+    _canonical: NotRequired[Canonical]
+
+
+class Summary(TypedDict):
+    categories: dict[str, float | None]
+    overall: float | None
+
+
+class Result(Summary):
+    name: str
+    metrics: Metrics
+    config: Language
+
+
+def main() -> None:
+    langs: list[Language] = tomllib.loads(CONFIG.read_text())["language"]
     previous = load_previous()
-    results = []
+    results: list[Result] = []
     for lang in langs:
         log(f"== {lang['name']}")
         metrics = evaluate(lang)
         carry_forward(metrics, previous.get(lang["name"], {}))
-        results.append({"name": lang["name"], "metrics": metrics, "config": lang, **summarize(metrics)})
+        s = summarize(metrics)
+        results.append({"name": lang["name"], "metrics": metrics, "config": lang, "categories": s["categories"], "overall": s["overall"]})
     results.sort(key=lambda r: -(r["overall"] or 0))
     DATA.parent.mkdir(exist_ok=True)
     DATA.write_text(json.dumps({"generated_at": NOW.isoformat(), "languages": results}, indent=1, default=str))
@@ -88,8 +168,8 @@ def main():
     log(f"wrote {PAGE}")
 
 
-def evaluate(lang):
-    m = {}
+def evaluate(lang: Language) -> Metrics:
+    m: Metrics = {}
     m.update(development(lang))
     m.update(community(lang))
     m.update(editors(lang))
@@ -98,15 +178,15 @@ def evaluate(lang):
 
 # ---------- Metric helpers ----------
 
-def ok(value, source, note=None, display=None):
+def ok(value: float | None, source: str | None, note: str | None = None, display: str | None = None) -> Metric:
     return {"value": value, "source": source, "note": note, "display": display}
 
 
-def missing(reason, source=None):
+def missing(reason: str, source: str | None = None) -> Metric:
     return {"value": None, "source": source, "note": reason}
 
 
-def guarded(keys, fn, *args):
+def guarded[*Ts](keys: Iterable[str], fn: Callable[[*Ts], Metrics], *args: *Ts) -> Metrics:
     try:
         return fn(*args)
     except Exception as e:
@@ -114,13 +194,12 @@ def guarded(keys, fn, *args):
         return {k: missing(f"not measured: {short(e)}") for k in keys}
 
 
-def short(e):
+def short(e: Exception) -> str:
     return re.sub(r"\s+", " ", str(e))[:140]
 
 
-def score(key, value):
-    rule = RULES[key]
-    better, cuts = rule[2], rule[3]
+def score(key: str, value: float | None) -> int | None:
+    _, _, better, cuts = RULES[key]
     if value is None or cuts is None:
         return None
     for s, cut in zip((5, 4, 3, 2), cuts):
@@ -129,43 +208,46 @@ def score(key, value):
     return 1
 
 
-def summarize(metrics):
-    cats = {}
+def summarize(metrics: Metrics) -> Summary:
+    cats: dict[str, float | None] = {}
     for cat, keys in CATEGORIES.items():
-        scores = [score(k, metrics[k]["value"]) for k in keys if k in metrics]
-        scores = [s for s in scores if s is not None]
+        scores = [s for k in keys if k in metrics if (s := score(k, metrics[k]["value"])) is not None]
         cats[cat] = round(sum(scores) / len(scores), 2) if scores else None
     measured = [v for v in cats.values() if v is not None]
     return {"categories": cats, "overall": round(sum(measured) / len(measured), 2) if measured else None}
 
 
-def days_since(iso):
+def days_since(iso: str) -> int:
     return (NOW - parse_time(iso)).days
 
 
-def parse_time(s):
+def parse_time(s: str) -> datetime:
     return datetime.fromisoformat(s.replace("Z", "+00:00"))
 
 
-def load_previous():
+def load_previous() -> dict[str, Metrics]:
     if not DATA.exists():
         return {}
     return {l["name"]: l["metrics"] for l in json.loads(DATA.read_text())["languages"]}
 
 
-def carry_forward(metrics, old):
+def carry_forward(metrics: Metrics, old: Metrics) -> None:
     for key, m in metrics.items():
         prev = old.get(key)
-        if m["value"] is None and m["note"] and m["note"].startswith("not measured:") and prev and prev.get("value") is not None:
-            since = prev.get("cached_from") or prev.get("measured_at")
-            metrics[key] = {**prev, "cached_from": since, "note": f"cached from {since[:10]}; latest fetch failed ({m['note'][14:]})"}
+        note = m["note"] or ""
+        since = (prev.get("cached_from") or prev.get("measured_at")) if prev else None
+        if m["value"] is None and note.startswith("not measured:") and prev and prev["value"] is not None and since:
+            cached = prev.copy()
+            cached["cached_from"] = since
+            cached["note"] = f"cached from {since[:10]}; latest fetch failed ({note[14:]})"
+            metrics[key] = cached
         elif m["value"] is not None:
             m["measured_at"] = NOW.isoformat()
 
 
 # ---------- Development ----------
 
-def development(lang):
+def development(lang: Language) -> Metrics:
     keys = CATEGORIES["Development"]
     repos = lang.get("repos", [])
     if not repos:
@@ -181,8 +263,9 @@ def development(lang):
     return out
 
 
-def pick_canonical(repos):
-    best, notes = None, []
+def pick_canonical(repos: list[Repo]) -> tuple[Canonical | None, list[str]]:
+    best: Canonical | None = None
+    notes: list[str] = []
     for r in repos:
         try:
             info = repo_info(r)
@@ -199,26 +282,38 @@ def pick_canonical(repos):
     return best, notes
 
 
-def repo_info(r):
+def repo_info(r: Repo) -> RepoInfo:
     if r["host"] == "github":
         d = gh(f"/repos/{r['repo']}")
-        return {"mirror": bool(d.get("mirror_url")), "pushed": d["pushed_at"], "web": d["html_url"]}
+        return {"mirror": bool(d.get("mirror_url")), "pushed": str(d["pushed_at"]), "web": str(d["html_url"])}
     base = forgejo_base(r)
     d = get_json(f"{base}/repos/{r['repo']}")
-    return {"mirror": d.get("mirror", False), "pushed": d["updated_at"], "web": d["html_url"]}
+    return {"mirror": bool(d.get("mirror", False)), "pushed": str(d["updated_at"]), "web": str(d["html_url"])}
 
 
-def github_activity(r):
+@dataclass(frozen=True)
+class Commit:
+    author: str
+    date: str
+
+
+def parse_commit(c: JSON) -> Commit:
+    author = (c.get("author") or {}).get("login") or c["commit"]["author"].get("email") or c["commit"]["author"]["name"]
+    return Commit(str(author), str(c["commit"]["committer"]["date"]))
+
+
+def github_activity(r: Canonical) -> Metrics:
     repo, web = r["repo"], r["web"]
     since_12m = (NOW - timedelta(days=365)).isoformat()
     since_90 = NOW - timedelta(days=90)
     commits = gh_paged(f"/repos/{repo}/commits", {"since": since_12m}, limit=250)
-    rows = [commit_row(c) for c in commits]
+    rows = [parse_commit(c) for c in commits]
+    last: str | None
     if rows:
-        last = max(x["date"] for x in rows)
+        last = max(x.date for x in rows)
     else:
         newest = gh(f"/repos/{repo}/commits", {"per_page": 1})
-        last = commit_row(newest[0])["date"] if newest else None
+        last = parse_commit(newest[0]).date if newest else None
     out = commit_metrics(rows, last, since_90, f"{web}/commits")
     if len(commits) >= 25_000:
         for k in ("authors_12m", "top_share_12m"):
@@ -228,61 +323,72 @@ def github_activity(r):
     return out
 
 
-def commit_row(c):
-    author = (c.get("author") or {}).get("login") or c["commit"]["author"].get("email") or c["commit"]["author"]["name"]
-    return {"author": author, "date": c["commit"]["committer"]["date"]}
-
-
-def commit_metrics(rows, last_date, since_90, source):
-    rows = [r for r in rows if not is_bot(r["author"])]
-    recent = [r for r in rows if parse_time(r["date"]) >= since_90]
-    authors_12m = Counter(r["author"] for r in rows)
+def commit_metrics(rows: list[Commit], last_date: str | None, since_90: datetime, source: str) -> Metrics:
+    rows = [r for r in rows if not is_bot(r.author)]
+    recent = [r for r in rows if parse_time(r.date) >= since_90]
+    authors_12m = Counter(r.author for r in rows)
     top = authors_12m.most_common(1)
     share = round(100 * top[0][1] / len(rows), 1) if top else None
     return {
         "days_since_commit": ok(days_since(last_date), source, display=f"{days_since(last_date)} ({last_date[:10]})") if last_date else missing("not measured: no commits found", source),
         "commits_90d": ok(len(recent), source),
-        "authors_90d": ok(len({r["author"] for r in recent}), source),
+        "authors_90d": ok(len({r.author for r in recent}), source),
         "authors_12m": ok(len(authors_12m), source),
         "top_share_12m": ok(share, source, display=f"{share}% ({top[0][0]}, {top[0][1]} of {len(rows)})") if top else missing("not measured: no commits in 12 months", source),
     }
 
 
-def is_bot(name):
-    return bool(name) and (name.endswith("[bot]") or "bot@" in name or name.endswith("-bot"))
+def is_bot(name: str | None) -> bool:
+    return name is not None and (name.endswith("[bot]") or "bot@" in name or name.endswith("-bot"))
 
 
-def is_release(r):
-    return not r["draft"] and not r["prerelease"] and not re.search(r"nightly|latest", r["tag_name"])
+@dataclass(frozen=True)
+class Release:
+    tag: str
+    published_at: str
 
 
-def github_release(repo, web):
-    rels = [x for x in gh(f"/repos/{repo}/releases", {"per_page": 30}) if is_release(x)]
+def parse_releases(items: JSON) -> list[Release]:
+    return [Release(str(r["tag_name"]), str(r["published_at"])) for r in items
+            if not r["draft"] and not r["prerelease"] and r["published_at"] and not re.search(r"nightly|latest", r["tag_name"])]
+
+
+def github_release(repo: str, web: str) -> Metric:
+    rels = parse_releases(gh(f"/repos/{repo}/releases", {"per_page": 30}))
     if rels:
-        when = rels[0]["published_at"]
-        return ok(days_since(when), f"{web}/releases", display=f"{days_since(when)} ({rels[0]['tag_name']}, {when[:10]})")
+        when = rels[0].published_at
+        return ok(days_since(when), f"{web}/releases", display=f"{days_since(when)} ({rels[0].tag}, {when[:10]})")
     tags = gh(f"/repos/{repo}/tags", {"per_page": 1})
     if not tags:
         return missing("not measured: no releases or tags", f"{web}/releases")
-    c = gh(f"/repos/{repo}/commits/{tags[0]['commit']['sha']}")
-    when = c["commit"]["committer"]["date"]
+    when = parse_commit(gh(f"/repos/{repo}/commits/{tags[0]['commit']['sha']}")).date
     return ok(days_since(when), f"{web}/tags", note="from latest tag; no GitHub releases", display=f"{days_since(when)} ({tags[0]['name']}, {when[:10]})")
 
 
 OUTSIDE = {"CONTRIBUTOR", "FIRST_TIME_CONTRIBUTOR", "FIRST_TIMER", "NONE"}
 
 
-def github_outside_prs(repo, web):
+@dataclass(frozen=True)
+class PullRequest:
+    association: str
+    author: str
+    merged_by: str | None = None
+
+    @property
+    def outside(self) -> bool:
+        return self.association in OUTSIDE and not is_bot(self.author)
+
+
+def github_outside_prs(repo: str, web: str) -> Metrics:
     d90 = (NOW - timedelta(days=90)).date().isoformat()
     merged = gh_merged_prs(f"repo:{repo} is:pr is:merged merged:>={d90}")
     rejected = gh_search(f"repo:{repo} is:pr is:closed is:unmerged closed:>={d90}")
     open_ = gh_search(f"repo:{repo} is:pr is:open")
-    outside = lambda items: [i for i in items if i["author_association"] in OUTSIDE and not is_bot(i["user"]["login"])]
-    om, orj, oo = outside(merged), outside(rejected), outside(open_)
+    om, orj, oo = ([p for p in ps if p.outside] for ps in (merged, rejected, open_))
     src = f"{web}/pulls"
     total = len(om) + len(orj)
-    authors = len({i["user"]["login"] for i in om})
-    mergers = {i["merged_by"] for i in merged if i["merged_by"] and not is_bot(i["merged_by"])}
+    authors = len({p.author for p in om})
+    mergers = {p.merged_by for p in merged if p.merged_by and not is_bot(p.merged_by)}
     return {
         "mergers_90d": ok(len(mergers), src, display=f"{len(mergers)} ({', '.join(sorted(mergers)[:8])}{', ...' if len(mergers) > 8 else ''})"),
         "outside_merged_90d": ok(len(om), src, display=f"{len(om)} by {authors} people (of {len(merged)} merged)"),
@@ -291,32 +397,46 @@ def github_outside_prs(repo, web):
     }
 
 
-def forgejo_base(r):
+def forgejo_base(r: Repo) -> str:
     return r.get("api") or f"https://{r['host']}.org/api/v1"
 
 
-def forgejo_activity(r):
+@dataclass(frozen=True)
+class ForgejoPull:
+    author: str
+    merged: bool
+    merged_by: str | None
+    closed: datetime
+
+
+def parse_forgejo_pull(p: JSON) -> ForgejoPull:
+    return ForgejoPull(str(p["user"]["login"]), bool(p.get("merged")), (p.get("merged_by") or {}).get("login"),
+                       parse_time(p["closed_at"] or p["updated_at"]))
+
+
+def forgejo_activity(r: Canonical) -> Metrics:
     base, repo, web = forgejo_base(r), r["repo"], r["web"]
     since_90 = NOW - timedelta(days=90)
     commits = forgejo_paged(f"{base}/repos/{repo}/commits", {"since": (NOW - timedelta(days=365)).isoformat(), "stat": "false", "files": "false", "verification": "false"})
-    rows = [commit_row(c) for c in commits]
-    last = max((x["date"] for x in rows), default=None)
+    rows = [parse_commit(c) for c in commits]
+    last = max((x.date for x in rows), default=None)
     out = commit_metrics(rows, last, since_90, f"{web}/commits")
-    rels = [x for x in get_json(f"{base}/repos/{repo}/releases", {"limit": 30}) if is_release(x)]
-    out["days_since_release"] = ok(days_since(rels[0]["published_at"]), f"{web}/releases") if rels else missing("not measured: no releases", f"{web}/releases")
+    rels = parse_releases(get_json(f"{base}/repos/{repo}/releases", {"limit": 30}))
+    out["days_since_release"] = ok(days_since(rels[0].published_at), f"{web}/releases") if rels else missing("not measured: no releases", f"{web}/releases")
     note = "Forgejo has no author association; outside means not a public member of the owning org"
     owner = repo.split("/")[0]
     try:
-        members = {u["login"] for u in forgejo_paged(f"{base}/orgs/{owner}/members", {})}
+        members = {str(u["login"]) for u in forgejo_paged(f"{base}/orgs/{owner}/members", {})}
     except Exception:
         members = {owner}
-    prs = [p for p in forgejo_paged(f"{base}/repos/{repo}/pulls", {"state": "closed", "sort": "recentupdate"}, stop=lambda p: parse_time(p["updated_at"]) < since_90)]
-    outside = [p for p in prs if p["user"]["login"] not in members and parse_time(p["closed_at"] or p["updated_at"]) >= since_90]
-    merged = [p for p in outside if p.get("merged")]
-    mergers = {(p.get("merged_by") or {}).get("login") for p in prs if p.get("merged") and parse_time(p["closed_at"] or p["updated_at"]) >= since_90} - {None}
+    prs = [parse_forgejo_pull(p) for p in forgejo_paged(f"{base}/repos/{repo}/pulls", {"state": "closed", "sort": "recentupdate"},
+                                                       stop=lambda p: parse_time(p["updated_at"]) < since_90)]
+    outside = [p for p in prs if p.author not in members and p.closed >= since_90]
+    merged = [p for p in outside if p.merged]
+    merged_90 = [p for p in prs if p.merged and p.closed >= since_90]
+    mergers = {p.merged_by for p in merged_90 if p.merged_by}
     open_ = [p for p in forgejo_paged(f"{base}/repos/{repo}/pulls", {"state": "open"}) if p["user"]["login"] not in members]
     src = f"{web}/pulls"
-    merged_90 = [p for p in prs if p.get("merged") and parse_time(p["closed_at"] or p["updated_at"]) >= since_90]
     out["mergers_90d"] = (ok(len(mergers), src, display=f"{len(mergers)} ({', '.join(sorted(mergers))})") if mergers or not merged_90
                           else missing("not measured: API did not report who merged", src))
     out["outside_merged_90d"] = ok(len(merged), src, note)
@@ -327,8 +447,8 @@ def forgejo_activity(r):
 
 # ---------- Community ----------
 
-def community(lang):
-    out = {}
+def community(lang: Language) -> Metrics:
+    out: Metrics = {}
     out.update(guarded(["reddit_per_week"], reddit, lang.get("subreddit")))
     out.update(guarded(["forum_posts_7d", "forum_topics_7d"], forum, lang.get("forum")))
     out.update(guarded(["discussions_30d"], discussions, lang))
@@ -338,15 +458,17 @@ def community(lang):
     return out
 
 
-def reddit(sub):
+ATOM = {"a": "http://www.w3.org/2005/Atom"}
+
+
+def reddit(sub: str | None) -> Metrics:
     if not sub:
         return {"reddit_per_week": missing("none configured")}
     url = f"https://www.reddit.com/r/{sub}/new/.rss?limit=100"
     web = f"https://www.reddit.com/r/{sub}/new/"
     time.sleep(3)
     root = ET.fromstring(get(url, headers={"User-Agent": UA}))
-    ns = {"a": "http://www.w3.org/2005/Atom"}
-    stamps = sorted(parse_time(e.findtext("a:published", namespaces=ns) or e.findtext("a:updated", namespaces=ns)) for e in root.findall("a:entry", ns))
+    stamps = sorted(entry_time(e) for e in root.findall("a:entry", ATOM))
     if not stamps:
         return {"reddit_per_week": ok(0, web)}
     window = 28
@@ -361,7 +483,14 @@ def reddit(sub):
     return {"reddit_per_week": ok(rate, web, note)}
 
 
-def forum(cfg):
+def entry_time(e: ET.Element) -> datetime:
+    stamp = e.findtext("a:published", namespaces=ATOM) or e.findtext("a:updated", namespaces=ATOM)
+    if not stamp:
+        raise ValueError("feed entry has no published or updated time")
+    return parse_time(stamp)
+
+
+def forum(cfg: Forum | None) -> Metrics:
     keys = ["forum_posts_7d", "forum_topics_7d"]
     if not cfg:
         return {k: missing("none configured") for k in keys}
@@ -377,24 +506,35 @@ def forum(cfg):
     return {k: missing(f"not measured: unknown forum kind {cfg['kind']}") for k in keys}
 
 
-def nimforum(url):
+@dataclass(frozen=True)
+class Thread:
+    activity: datetime
+    creation: datetime
+
+
+def parse_thread(t: JSON) -> Thread:
+    return Thread(datetime.fromtimestamp(t["activity"], timezone.utc), datetime.fromtimestamp(t["creation"], timezone.utc))
+
+
+def nimforum(url: str) -> Metrics:
     cutoff = NOW - timedelta(days=7)
-    threads, start = [], 0
+    threads: list[Thread] = []
+    start = 0
     while True:
-        page = get_json(f"{url}/threads.json", {"start": start, "count": 30})["threads"]
+        page = [parse_thread(t) for t in get_json(f"{url}/threads.json", {"start": start, "count": 30})["threads"]]
         threads += page
-        if not page or datetime.fromtimestamp(page[-1]["activity"], timezone.utc) < cutoff or start > 600:
+        if not page or page[-1].activity < cutoff or start > 600:
             break
         start += 30
-    active = [t for t in threads if datetime.fromtimestamp(t["activity"], timezone.utc) >= cutoff]
-    created = sum(datetime.fromtimestamp(t["creation"], timezone.utc) >= cutoff for t in active)
+    active = [t for t in threads if t.activity >= cutoff]
+    created = sum(t.creation >= cutoff for t in active)
     return {
         "forum_posts_7d": missing("not measured: nimforum API has no post counts; see topics", url),
         "forum_topics_7d": ok(created, url, f"{len(active)} threads had activity in 7 days"),
     }
 
 
-def discussions(lang):
+def discussions(lang: Language) -> Metrics:
     repo = lang.get("github_discussions")
     if not repo:
         return {"discussions_30d": missing("none configured")}
@@ -404,10 +544,10 @@ def discussions(lang):
     d30 = (NOW - timedelta(days=30)).date().isoformat()
     q = 'query($q:String!){search(query:$q,type:DISCUSSION){discussionCount}}'
     data = gh_graphql(q, {"q": f"repo:{repo} created:>={d30}"})
-    return {"discussions_30d": ok(data["search"]["discussionCount"], web)}
+    return {"discussions_30d": ok(int(data["search"]["discussionCount"]), web)}
 
 
-def discord(invite):
+def discord(invite: str | None) -> Metrics:
     keys = ["discord_members", "discord_online"]
     if not invite:
         return {k: missing("none configured") for k in keys}
@@ -415,12 +555,12 @@ def discord(invite):
     web = f"https://discord.gg/{invite}"
     name = d.get("guild", {}).get("name", "")
     return {
-        "discord_members": ok(d["approximate_member_count"], web, f"server: {name}"),
-        "discord_online": ok(d["approximate_presence_count"], web, f"server: {name}"),
+        "discord_members": ok(int(d["approximate_member_count"]), web, f"server: {name}"),
+        "discord_online": ok(int(d["approximate_presence_count"]), web, f"server: {name}"),
     }
 
 
-def platforms(lang):
+def platforms(lang: Language) -> Metric:
     found = []
     if lang.get("subreddit"): found.append("Reddit")
     if lang.get("forum"): found.append("Forum")
@@ -430,7 +570,7 @@ def platforms(lang):
     return ok(len(found), None, "counted from languages.toml", display=f"{len(found)} ({', '.join(found)})")
 
 
-def x_activity(lang):
+def x_activity(lang: Language) -> Metric:
     accounts = lang.get("x_accounts", [])
     note = lang.get("x_notes") or "not measured: no X API credentials in CI"
     links = ", ".join(f"@{a}" for a in accounts) or "none listed"
@@ -439,110 +579,137 @@ def x_activity(lang):
 
 # ---------- Editors ----------
 
-def editors(lang):
-    out = {}
+def editors(lang: Language) -> Metrics:
+    out: Metrics = {}
     out.update(guarded(["zed_days", "zed_downloads"], zed, lang.get("zed", [])))
     out.update(guarded(["vscode_days", "vscode_installs", "vscode_rating"], vscode, lang.get("vscode", [])))
     out.update(guarded(["openvsx_days", "openvsx_downloads"], openvsx, lang.get("openvsx", [])))
     out.update(guarded(["lsp_days", "lsp_commits_90d"], lsp, lang.get("lsp")))
     rating = lang.get("lsp_rating")
-    out["lsp_rating"] = ok(rating, None, lang.get("lsp_notes")) if rating else missing(f"not rated; {lang['lsp_notes']}" if lang.get("lsp_notes") else "not rated (manual field in languages.toml)")
+    notes = lang.get("lsp_notes")
+    out["lsp_rating"] = ok(rating, None, notes) if rating else missing(f"not rated; {notes}" if notes else "not rated (manual field in languages.toml)")
     return out
 
 
-def best(found, key):
-    return max(found, key=key)
-
-
-def flag(days):
+def flag(days: int) -> str:
     return f"{days} (stale, over {STALE_DAYS} days)" if days > STALE_DAYS else str(days)
 
 
-def zed(ids):
+@dataclass(frozen=True)
+class ZedExtension:
+    id: str
+    version: str
+    published_at: str
+    repository: str
+    downloads: int
+
+
+def zed(ids: list[str]) -> Metrics:
     if not ids:
         return {"zed_days": missing("none configured"), "zed_downloads": missing("none configured")}
-    found = []
-    for i in ids:
-        for e in get_json("https://api.zed.dev/extensions", {"filter": i})["data"]:
-            if e["id"] == i:
-                found.append(e)
+    found = [ZedExtension(i, str(e["version"]), str(e["published_at"]), str(e["repository"]), int(e["download_count"]))
+             for i in ids for e in get_json("https://api.zed.dev/extensions", {"filter": i})["data"] if e["id"] == i]
     if not found:
         return {k: missing(f"not measured: {ids} not in Zed registry") for k in ("zed_days", "zed_downloads")}
-    e = best(found, lambda e: e["published_at"])
-    src = f"https://zed.dev/extensions?query={e['id']}"
-    others = "; ".join(f"{x['id']} v{x['version']} {days_since(x['published_at'])}d" for x in found)
-    d = days_since(e["published_at"])
+    e = max(found, key=lambda e: e.published_at)
+    src = f"https://zed.dev/extensions?query={e.id}"
+    others = "; ".join(f"{x.id} v{x.version} {days_since(x.published_at)}d" for x in found)
+    d = days_since(e.published_at)
     return {
-        "zed_days": ok(d, src, f"{others}; repo {e['repository']}", display=f"{flag(d)} ({e['id']} v{e['version']})"),
-        "zed_downloads": ok(sum(x["download_count"] for x in found), src),
+        "zed_days": ok(d, src, f"{others}; repo {e.repository}", display=f"{flag(d)} ({e.id} v{e.version})"),
+        "zed_downloads": ok(sum(x.downloads for x in found), src),
     }
 
 
-def vscode(ids):
+@dataclass(frozen=True)
+class VscodeExtension:
+    id: str
+    updated: str
+    installs: int
+    rating: float | None
+    ratings: int
+
+    @property
+    def url(self) -> str:
+        return f"https://marketplace.visualstudio.com/items?itemName={self.id}"
+
+
+def parse_vscode(i: str, e: JSON) -> VscodeExtension:
+    st = {s["statisticName"]: s["value"] for s in e.get("statistics", [])}
+    rating = st.get("averagerating")
+    return VscodeExtension(i, str(e["lastUpdated"]), int(st.get("install", 0)),
+                           float(rating) if rating is not None else None, int(st.get("ratingcount", 0)))
+
+
+def vscode(ids: list[str]) -> Metrics:
     keys = ("vscode_days", "vscode_installs", "vscode_rating")
     if not ids:
         return {k: missing("none configured") for k in keys}
-    found = []
+    found: list[VscodeExtension] = []
     for i in ids:
         body = {"filters": [{"criteria": [{"filterType": 7, "value": i}]}], "flags": 914}
         res = get_json("https://marketplace.visualstudio.com/_apis/public/gallery/extensionquery", data=body,
                        headers={"Accept": "application/json;api-version=7.1-preview.1"})["results"][0]["extensions"]
-        for e in res:
-            st = {s["statisticName"]: s["value"] for s in e.get("statistics", [])}
-            found.append({"id": i, "updated": e["lastUpdated"], "installs": int(st.get("install", 0)),
-                          "rating": st.get("averagerating"), "ratings": int(st.get("ratingcount", 0))})
+        found += [parse_vscode(i, e) for e in res]
     if not found:
         return {k: missing(f"not measured: {ids} not found on marketplace") for k in keys}
-    e = best(found, lambda e: e["updated"])
-    top = best(found, lambda e: e["installs"])
-    src = lambda x: f"https://marketplace.visualstudio.com/items?itemName={x['id']}"
-    others = "; ".join(f"{x['id']}: {days_since(x['updated'])}d, {x['installs']} installs" for x in found)
-    d = days_since(e["updated"])
+    e = max(found, key=lambda e: e.updated)
+    top = max(found, key=lambda e: e.installs)
+    others = "; ".join(f"{x.id}: {days_since(x.updated)}d, {x.installs} installs" for x in found)
+    d = days_since(e.updated)
     return {
-        "vscode_days": ok(d, src(e), others, display=f"{flag(d)} ({e['id']})"),
-        "vscode_installs": ok(top["installs"], src(top), display=f"{top['installs']:,} ({top['id']})"),
-        "vscode_rating": ok(round(top["rating"], 2), src(top), display=f"{top['rating']:.1f} ({top['ratings']} ratings)") if top["rating"] else missing("not measured: no ratings", src(top)),
+        "vscode_days": ok(d, e.url, others, display=f"{flag(d)} ({e.id})"),
+        "vscode_installs": ok(top.installs, top.url, display=f"{top.installs:,} ({top.id})"),
+        "vscode_rating": ok(round(top.rating, 2), top.url, display=f"{top.rating:.1f} ({top.ratings} ratings)") if top.rating else missing("not measured: no ratings", top.url),
     }
 
 
-def openvsx(ids):
+@dataclass(frozen=True)
+class OpenVsxExtension:
+    id: str
+    updated: str
+    downloads: int
+
+
+def openvsx(ids: list[str]) -> Metrics:
     keys = ("openvsx_days", "openvsx_downloads")
     if not ids:
         return {k: missing("none configured") for k in keys}
-    found, absent = [], []
+    found: list[OpenVsxExtension] = []
+    absent: list[str] = []
     for i in ids:
         ns, name = i.split(".", 1)
         try:
             d = get_json(f"https://open-vsx.org/api/{ns}/{name}")
-            found.append({"id": i, "updated": d["timestamp"], "downloads": d.get("downloadCount", 0)})
+            found.append(OpenVsxExtension(i, str(d["timestamp"]), int(d.get("downloadCount", 0))))
         except urllib.error.HTTPError as e:
             if e.code != 404:
                 raise
             absent.append(i)
     if not found:
         return {k: missing(f"not on Open VSX: {', '.join(absent)}", "https://open-vsx.org") for k in keys}
-    e = best(found, lambda e: e["updated"])
-    src = f"https://open-vsx.org/extension/{e['id'].replace('.', '/')}"
-    d = days_since(e["updated"])
+    newest = max(found, key=lambda x: x.updated)
+    src = f"https://open-vsx.org/extension/{newest.id.replace('.', '/')}"
+    d = days_since(newest.updated)
     return {
-        "openvsx_days": ok(d, src, f"absent: {', '.join(absent)}" if absent else None, display=f"{flag(d)} ({e['id']})"),
-        "openvsx_downloads": ok(sum(x["downloads"] for x in found), src),
+        "openvsx_days": ok(d, src, f"absent: {', '.join(absent)}" if absent else None, display=f"{flag(d)} ({newest.id})"),
+        "openvsx_downloads": ok(sum(x.downloads for x in found), src),
     }
 
 
-def lsp(cfg):
+def lsp(cfg: Lsp | None) -> Metrics:
     if not cfg:
         return {k: missing("none configured") for k in ("lsp_days", "lsp_commits_90d")}
     repo = cfg["repo"]
     web = f"https://github.com/{repo}"
     since = (NOW - timedelta(days=90)).isoformat()
-    path = {"path": cfg["path"]} if cfg.get("path") else {}
+    path: Params = {"path": cfg["path"]} if cfg.get("path") else {}
     recent = gh_paged(f"/repos/{repo}/commits", {"since": since, **path})
     last = recent[0] if recent else (gh(f"/repos/{repo}/commits", {"per_page": 1, **path}) or [None])[0]
     note = cfg["name"]
     if not last:
         return {"lsp_days": missing("not measured: no commits", web), "lsp_commits_90d": ok(0, web, note)}
-    when = last["commit"]["committer"]["date"]
+    when = parse_commit(last).date
     shared = " (shared with compiler repo)" if cfg.get("shared") else ""
     return {
         "lsp_days": ok(days_since(when), f"{web}/commits", note, display=f"{days_since(when)} ({when[:10]})"),
@@ -552,19 +719,19 @@ def lsp(cfg):
 
 # ---------- HTTP ----------
 
-def gh(path, params=None):
+def gh(path: str, params: Params | None = None) -> JSON:
     return get_json(f"https://api.github.com{path}", params, headers=gh_headers())
 
 
-def gh_headers():
+def gh_headers() -> dict[str, str]:
     h = {"Accept": "application/vnd.github+json", "X-GitHub-Api-Version": "2022-11-28"}
     if TOKEN:
         h["Authorization"] = f"Bearer {TOKEN}"
     return h
 
 
-def gh_paged(path, params, limit=40):
-    items = []
+def gh_paged(path: str, params: Params, limit: int = 40) -> list[JSON]:
+    items: list[JSON] = []
     for page in range(1, limit + 1):
         batch = gh(path, {**params, "per_page": 100, "page": page})
         items += batch
@@ -573,40 +740,41 @@ def gh_paged(path, params, limit=40):
     return items
 
 
-def gh_search(q):
-    items = []
+def gh_search(q: str) -> list[PullRequest]:
+    items: list[JSON] = []
     for page in range(1, 11):
         d = gh("/search/issues", {"q": q, "per_page": 100, "page": page})
         items += d["items"]
         if len(items) >= d["total_count"] or not d["items"]:
             break
-    return items
+    return [PullRequest(str(i["author_association"]), str(i["user"]["login"])) for i in items]
 
 
 MERGED_Q = """query($q:String!,$after:String){search(query:$q,type:ISSUE,first:100,after:$after){issueCount
 pageInfo{hasNextPage endCursor} nodes{... on PullRequest{authorAssociation author{login} mergedBy{login}}}}}"""
 
 
-def gh_merged_prs(q):
-    items, after = [], None
+def gh_merged_prs(q: str) -> list[PullRequest]:
+    items: list[PullRequest] = []
+    after: str | None = None
     while True:
         d = gh_graphql(MERGED_Q, {"q": q, "after": after})["search"]
-        items += [{"author_association": n["authorAssociation"], "user": {"login": (n["author"] or {}).get("login", "ghost")},
-                   "merged_by": (n["mergedBy"] or {}).get("login")} for n in d["nodes"]]
+        items += [PullRequest(str(n["authorAssociation"]), str((n["author"] or {}).get("login", "ghost")), (n["mergedBy"] or {}).get("login"))
+                  for n in d["nodes"]]
         if not d["pageInfo"]["hasNextPage"]:
             return items
         after = d["pageInfo"]["endCursor"]
 
 
-def gh_graphql(query, variables):
+def gh_graphql(query: str, variables: Params) -> JSON:
     d = get_json("https://api.github.com/graphql", data={"query": query, "variables": variables}, headers=gh_headers())
     if d.get("errors"):
         raise RuntimeError(d["errors"][0]["message"])
     return d["data"]
 
 
-def forgejo_paged(url, params, stop=None, limit=60):
-    items = []
+def forgejo_paged(url: str, params: Params, stop: Callable[[JSON], bool] | None = None, limit: int = 60) -> list[JSON]:
+    items: list[JSON] = []
     for page in range(1, limit + 1):
         batch = get_json(url, {**params, "limit": 50, "page": page})
         items += batch
@@ -615,11 +783,11 @@ def forgejo_paged(url, params, stop=None, limit=60):
     return items
 
 
-def get_json(url, params=None, data=None, headers=None):
+def get_json(url: str, params: Params | None = None, data: JSON = None, headers: dict[str, str] | None = None) -> JSON:
     return json.loads(get(url, params, data, headers))
 
 
-def get(url, params=None, data=None, headers=None, attempts=4):
+def get(url: str, params: Params | None = None, data: JSON = None, headers: dict[str, str] | None = None, attempts: int = 4) -> bytes:
     if params:
         url += "?" + urllib.parse.urlencode(params)
     body = json.dumps(data).encode() if data is not None else None
@@ -627,7 +795,8 @@ def get(url, params=None, data=None, headers=None, attempts=4):
     for attempt in range(attempts):
         try:
             with urllib.request.urlopen(urllib.request.Request(url, body, hdrs), timeout=60) as r:
-                return r.read()
+                content: bytes = r.read()
+                return content
         except urllib.error.HTTPError as e:
             wait = rate_limit_wait(e)
             if wait is None or attempt == attempts - 1:
@@ -638,30 +807,32 @@ def get(url, params=None, data=None, headers=None, attempts=4):
             if attempt == attempts - 1:
                 raise
             time.sleep(5 * (attempt + 1))
+    raise ValueError(f"attempts must be at least 1, got {attempts}")
 
 
-def rate_limit_wait(e):
+def rate_limit_wait(e: urllib.error.HTTPError) -> int | None:
     if e.code >= 500:
         return 10
+    retry_after, reset = e.headers.get("retry-after"), e.headers.get("x-ratelimit-reset")
     if e.code == 429 or (e.code == 403 and e.headers.get("x-ratelimit-remaining") == "0"):
-        if e.headers.get("retry-after"):
-            return min(max(int(float(e.headers["retry-after"])) + 1, 15), 120)
-        if e.headers.get("x-ratelimit-reset"):
-            reset = int(float(e.headers["x-ratelimit-reset"]))
-            return min(max((reset if reset < 1e9 else reset - int(time.time())) + 2, 15), 900)
+        if retry_after:
+            return min(max(int(float(retry_after)) + 1, 15), 120)
+        if reset:
+            r = int(float(reset))
+            return min(max((r if r < 1e9 else r - int(time.time())) + 2, 15), 900)
         return 30
     if e.code == 403 and "secondary rate limit" in e.read().decode(errors="ignore").lower():
         return 60
     return None
 
 
-def log(msg):
+def log(msg: str) -> None:
     print(msg, file=sys.stderr, flush=True)
 
 
 # ---------- Page ----------
 
-def render(results):
+def render(results: list[Result]) -> str:
     stamp = NOW.strftime("%Y-%m-%d %H:%M UTC")
     return TEMPLATE.format(
         stamp=stamp,
@@ -672,13 +843,13 @@ def render(results):
     )
 
 
-def stars(s):
+def stars(s: float | None) -> str:
     if s is None:
         return '<span class="nm">not measured</span>'
     return f'<span class="score s{round(s)}">{s:.1f}</span>'
 
 
-def summary_table(results):
+def summary_table(results: list[Result]) -> str:
     head = "".join(f'<th data-type="num" aria-sort="none">{c}</th>' for c in CATEGORIES)
     rows = []
     for r in results:
@@ -689,7 +860,7 @@ def summary_table(results):
             f'<tbody>{"".join(rows)}</tbody></table>')
 
 
-def detail(r):
+def detail(r: Result) -> str:
     m = r["metrics"]
     sections = []
     for cat, keys in CATEGORIES.items():
@@ -702,27 +873,28 @@ def detail(r):
             f'<p><span class="dim">Main repo</span> {repo}</p>{"".join(sections)}</section>')
 
 
-def metric_row(key, m):
+def metric_row(key: str, m: Metric) -> str:
     label, unit = RULES[key][0], RULES[key][1]
-    v = m.get("value")
+    v = m["value"]
+    display = m.get("display")
     if v is None:
-        value = f'<span class="nm">{"n/a" if (m.get("note") or "").startswith("none") else "not measured"}</span>'
+        value = f'<span class="nm">{"n/a" if (m["note"] or "").startswith("none") else "not measured"}</span>'
     else:
-        shown = m.get("display") or (f"{v:,}" if isinstance(v, int) else str(v))
+        shown = display or (f"{v:,}" if isinstance(v, int) else str(v))
         head, _, rest = shown.partition(" ")
         head = head.removesuffix(unit) if unit == "%" else head
         value = f'{esc(head)} <span class="dim">{esc(unit)}</span> {esc(rest)}'
-    if "stale" in (m.get("display") or ""):
+    if "stale" in (display or ""):
         value = f'<span class="warn">{value}</span>'
-    src = f' <a class="src" href="{esc(m["source"])}">source</a>' if m.get("source") else ""
+    src = f' <a class="src" href="{esc(m["source"])}">source</a>' if m["source"] else ""
     s = score(key, v)
     sc = f'<span class="score s{s}">{s}</span>' if s else '<span class="dim">unscored</span>'
-    return f'<tr><td class="dim">{esc(label)}</td><td>{value}</td><td>{sc}</td><td class="note">{esc(m.get("note") or "")}{src}</td></tr>'
+    return f'<tr><td class="dim">{esc(label)}</td><td>{value}</td><td>{sc}</td><td class="note">{esc(m["note"] or "")}{src}</td></tr>'
 
 
-def thresholds_table():
+def thresholds_table() -> str:
     rows = []
-    for key, (label, unit, better, cuts) in RULES.items():
+    for label, unit, better, cuts in RULES.values():
         if cuts is None:
             rows.append(f'<tr><td class="dim">{esc(label)}</td><td colspan="5" class="dim">shown for context, not scored</td></tr>')
             continue
@@ -733,11 +905,11 @@ def thresholds_table():
             f'<tbody>{"".join(rows)}</tbody></table>')
 
 
-def esc(s):
+def esc(s: object) -> str:
     return html.escape(str(s))
 
 
-def slug(s):
+def slug(s: str) -> str:
     return re.sub(r"[^a-z0-9]+", "-", s.lower())
 
 

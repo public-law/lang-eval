@@ -14,6 +14,12 @@ GITHUB_TOKEN=$(gh auth token) ./lang_eval.py
 
 Output goes to `docs/index.html` and `docs/data.json`. A GitHub Action reruns it weekly and deploys to Pages.
 
+Type check, as CI does:
+
+```sh
+uvx --exclude-newer 2026-11-01T00:00:00Z --python 3.12.15 mypy==2.4.1 --strict lang_eval.py
+```
+
 ## Add a language
 
 Copy a `[[language]]` block in `languages.toml`. Fields you leave out show as n/a. Manual judgments (`lsp_rating`, `lsp_notes`, `x_notes`) go there too.
