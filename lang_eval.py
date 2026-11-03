@@ -668,6 +668,7 @@ def render(results):
         summary=summary_table(results),
         details="\n".join(detail(r) for r in results),
         thresholds=thresholds_table(),
+        gh=GITHUB_LINK,
     )
 
 
@@ -678,13 +679,13 @@ def stars(s):
 
 
 def summary_table(results):
-    head = "".join(f'<th data-type="num">{c}</th>' for c in CATEGORIES)
+    head = "".join(f'<th data-type="num" aria-sort="none">{c}</th>' for c in CATEGORIES)
     rows = []
     for r in results:
         cells = "".join(f'<td data-v="{r["categories"][c] or -1}">{stars(r["categories"][c])}</td>' for c in CATEGORIES)
         rows.append(f'<tr><td data-v="{esc(r["name"])}"><a href="#{slug(r["name"])}">{esc(r["name"])}</a></td>'
                     f'<td data-v="{r["overall"] or -1}">{stars(r["overall"])}</td>{cells}</tr>')
-    return (f'<table class="sortable"><thead><tr><th data-type="text">Language</th><th data-type="num">Overall</th>{head}</tr></thead>'
+    return (f'<table class="sortable"><thead><tr><th data-type="text" aria-sort="none">Language</th><th data-type="num" aria-sort="descending">Overall</th>{head}</tr></thead>'
             f'<tbody>{"".join(rows)}</tbody></table>')
 
 
@@ -740,6 +741,13 @@ def slug(s):
     return re.sub(r"[^a-z0-9]+", "-", s.lower())
 
 
+REPO_URL = "https://github.com/public-law/lang-eval"
+GITHUB_LINK = (f'<a class="gh" href="{REPO_URL}" aria-label="View source on GitHub"><svg viewBox="0 0 16 16" aria-hidden="true">'
+               '<path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94'
+               '-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07'
+               '-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27'
+               ' 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93'
+               '-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>View on GitHub</a>')
 TEMPLATE = """<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Language evaluation</title>
@@ -756,26 +764,36 @@ h2 {{ border-top:1px solid var(--line); padding-top:1.5rem; margin-top:2.5rem; }
 table {{ border-collapse:collapse; width:100%; background:var(--panel); margin:.5rem 0 1rem; }}
 th, td {{ text-align:left; padding:.4rem .7rem; border-bottom:1px solid var(--line); vertical-align:top; }}
 table.sortable th {{ cursor:pointer; user-select:none; }}
-table.sortable th:after {{ content:" \\2195"; opacity:.5; }}
+table.sortable th:after {{ content:"\\2195"; margin-left:.35em; opacity:.35; }}
+table.sortable th[aria-sort="ascending"]:after {{ content:"\\25B2"; opacity:.9; color:var(--accent); }}
+table.sortable th[aria-sort="descending"]:after {{ content:"\\25BC"; opacity:.9; color:var(--accent); }}
+.gh {{ display:inline-flex; align-items:center; gap:.4em; font-size:13px; text-decoration:none; color:var(--fg); opacity:.7; border:1px solid var(--line); border-radius:6px; padding:.3em .65em; }}
+.gh:hover {{ opacity:1; border-color:var(--accent); }}
+.gh svg {{ width:16px; height:16px; fill:currentColor; }}
+header {{ display:flex; justify-content:space-between; align-items:center; gap:1rem; }}
+footer {{ border-top:1px solid var(--line); margin-top:2.5rem; padding-top:1rem; display:flex; justify-content:space-between; align-items:center; }}
 .score {{ display:inline-block; min-width:2.2em; text-align:center; border-radius:4px; padding:0 .3em; font-weight:600; color:#1d2024; }}
 .s5 {{ background:#7fc98f; }} .s4 {{ background:#b5d37a; }} .s3 {{ background:#e3cf6e; }} .s2 {{ background:#e6a065; }} .s1 {{ background:#de7b72; }}
 </style></head><body>
-<h1>Programming language evaluation</h1>
+<header><h1>Programming language evaluation</h1>{gh}</header>
 <p><span class="dim">Generated at</span> {stamp} <span class="dim">from live API calls. Click a column to sort. Category scores average the measured metrics; overall averages the categories. Metrics that could not be fetched say so and are left out of the averages.</span></p>
 {summary}
 {details}
 <h2>Scoring thresholds</h2>
 <p class="dim">Each metric maps to a 1 to 5 score using these cut points.</p>
 {thresholds}
+<footer><span class="dim">Generated at {stamp}</span>{gh}</footer>
 <script>
 document.querySelectorAll("table.sortable th").forEach((th, i) => th.addEventListener("click", () => {{
   const body = th.closest("table").tBodies[0];
   const num = th.dataset.type === "num";
-  const dir = th.dataset.dir = th.dataset.dir === "desc" ? "asc" : "desc";
+  const dir = th.getAttribute("aria-sort") === "descending" ? "ascending" : "descending";
+  th.closest("tr").querySelectorAll("th").forEach(h => h.setAttribute("aria-sort", "none"));
+  th.setAttribute("aria-sort", dir);
   const val = r => r.cells[i].dataset.v;
   [...body.rows].sort((a, b) => {{
     const c = num ? val(a) - val(b) : val(a).localeCompare(val(b));
-    return dir === "asc" ? c : -c;
+    return dir === "ascending" ? c : -c;
   }}).forEach(r => body.appendChild(r));
 }}));
 </script>
