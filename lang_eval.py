@@ -20,7 +20,7 @@ import urllib.request
 import xml.etree.ElementTree as ET
 from collections import Counter
 from collections.abc import Callable, Iterable
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, NotRequired, TypedDict
@@ -93,51 +93,59 @@ class Metric(TypedDict):
 type Metrics = dict[str, Metric]
 
 
-class Repo(TypedDict):
+@dataclass(frozen=True)
+class Repo:
     host: str
     repo: str
-    api: NotRequired[str]
+    api: str | None = None
 
 
-class RepoInfo(TypedDict):
+@dataclass(frozen=True)
+class Canonical:
+    host: str
+    repo: str
+    api: str | None
     mirror: bool
     pushed: str
     web: str
 
+    def to_json(self) -> dict[str, JSON]:
+        api = {"api": self.api} if self.api else {}
+        return {"host": self.host, "repo": self.repo, **api, "mirror": self.mirror, "pushed": self.pushed, "web": self.web}
 
-class Canonical(Repo, RepoInfo):
-    pass
 
-
-class Forum(TypedDict):
+@dataclass(frozen=True)
+class Forum:
     kind: str
     url: str
 
 
-class Lsp(TypedDict):
+@dataclass(frozen=True)
+class Lsp:
     name: str
     repo: str
-    path: NotRequired[str]
-    shared: NotRequired[bool]
+    path: str | None = None
+    shared: bool = False
 
 
-class Language(TypedDict):
+@dataclass(frozen=True)
+class Language:
     name: str
-    repos: NotRequired[list[Repo]]
-    subreddit: NotRequired[str]
-    forum: NotRequired[Forum]
-    github_discussions: NotRequired[str]
-    discord_invite: NotRequired[str]
-    other_platforms: NotRequired[list[str]]
-    x_accounts: NotRequired[list[str]]
-    x_notes: NotRequired[str]
-    zed: NotRequired[list[str]]
-    vscode: NotRequired[list[str]]
-    openvsx: NotRequired[list[str]]
-    lsp: NotRequired[Lsp]
-    lsp_rating: NotRequired[int]
-    lsp_notes: NotRequired[str]
-    _canonical: NotRequired[Canonical]
+    raw: dict[str, JSON] = field(repr=False, compare=False)
+    repos: tuple[Repo, ...] = ()
+    subreddit: str | None = None
+    forum: Forum | None = None
+    github_discussions: str | None = None
+    discord_invite: str | None = None
+    other_platforms: tuple[str, ...] = ()
+    x_accounts: tuple[str, ...] = ()
+    x_notes: str | None = None
+    zed: tuple[str, ...] = ()
+    vscode: tuple[str, ...] = ()
+    openvsx: tuple[str, ...] = ()
+    lsp: Lsp | None = None
+    lsp_rating: int | None = None
+    lsp_notes: str | None = None
 
 
 class Summary(TypedDict):
@@ -148,19 +156,23 @@ class Summary(TypedDict):
 class Result(Summary):
     name: str
     metrics: Metrics
-    config: Language
+    config: dict[str, JSON]
 
 
-def main() -> None:
-    langs: list[Language] = tomllib.loads(CONFIG.read_text())["language"]
+def main(argv: list[str]) -> None:
+    langs = load_config(CONFIG.read_text())
+    if "--check-config" in argv:
+        log(f"{CONFIG.name}: {len(langs)} languages, no problems")
+        return
     previous = load_previous()
     results: list[Result] = []
     for lang in langs:
-        log(f"== {lang['name']}")
-        metrics = evaluate(lang)
-        carry_forward(metrics, previous.get(lang["name"], {}))
+        log(f"== {lang.name}")
+        metrics, canonical = evaluate(lang)
+        carry_forward(metrics, previous.get(lang.name, {}))
         s = summarize(metrics)
-        results.append({"name": lang["name"], "metrics": metrics, "config": lang, "categories": s["categories"], "overall": s["overall"]})
+        config = {**lang.raw, **({"_canonical": canonical.to_json()} if canonical else {})}
+        results.append({"name": lang.name, "metrics": metrics, "config": config, "categories": s["categories"], "overall": s["overall"]})
     results.sort(key=lambda r: -(r["overall"] or 0))
     DATA.parent.mkdir(exist_ok=True)
     DATA.write_text(json.dumps({"generated_at": NOW.isoformat(), "languages": results}, indent=1, default=str))
@@ -168,12 +180,189 @@ def main() -> None:
     log(f"wrote {PAGE}")
 
 
-def evaluate(lang: Language) -> Metrics:
-    m: Metrics = {}
-    m.update(development(lang))
+def evaluate(lang: Language) -> tuple[Metrics, Canonical | None]:
+    m, canonical = development(lang)
     m.update(community(lang))
     m.update(editors(lang))
-    return m
+    return m, canonical
+
+
+# ---------- Config ----------
+
+class ConfigError(Exception):
+    def __init__(self, problems: list[str]) -> None:
+        self.problems = problems
+        super().__init__(f"{CONFIG.name}: {len(problems)} problem(s)\n" + "\n".join(f"  {p}" for p in problems))
+
+
+HOSTS = {"github", "codeberg"}
+FORUM_KINDS = {"discourse", "nimforum"}
+SLUG = r"[A-Za-z0-9_.-]+"
+OWNER_REPO = rf"{SLUG}/{SLUG}"
+EXTENSION_ID = r"[A-Za-z0-9_-]+\.[A-Za-z0-9_.-]+"
+
+
+def load_config(text: str) -> list[Language]:
+    problems: list[str] = []
+    try:
+        raw = tomllib.loads(text)
+    except tomllib.TOMLDecodeError as e:
+        raise ConfigError([f"invalid TOML: {e}"]) from None
+    top = Table(raw, "", problems)
+    tables = top.tables("language", required=True)
+    top.finish()
+    langs = [parse_language(t) for t in tables]
+    seen: dict[str, int] = {}
+    for i, lang in enumerate(langs):
+        if lang.name and lang.name.lower() in seen:
+            problems.append(f"language[{i}].name: duplicate of language[{seen[lang.name.lower()]}] ({lang.name!r})")
+        seen.setdefault(lang.name.lower(), i)
+    if problems:
+        raise ConfigError(problems)
+    return langs
+
+
+def parse_language(t: "Table") -> Language:
+    repos = tuple(parse_repo(r) for r in t.tables("repos"))
+    forum = t.table("forum")
+    lsp = t.table("lsp")
+    lang = Language(
+        name=t.text("name", required=True) or "",
+        raw=t.data,
+        repos=repos,
+        subreddit=t.text("subreddit", pattern=r"[A-Za-z0-9_]+"),
+        forum=parse_forum(forum) if forum else None,
+        github_discussions=t.text("github_discussions", pattern=OWNER_REPO),
+        discord_invite=t.text("discord_invite", pattern=r"[A-Za-z0-9-]+"),
+        other_platforms=t.texts("other_platforms"),
+        x_accounts=t.texts("x_accounts", pattern=r"[A-Za-z0-9_]{1,15}"),
+        x_notes=t.text("x_notes"),
+        zed=t.texts("zed", pattern=r"[a-z0-9_-]+"),
+        vscode=t.texts("vscode", pattern=EXTENSION_ID),
+        openvsx=t.texts("openvsx", pattern=EXTENSION_ID),
+        lsp=parse_lsp(lsp) if lsp else None,
+        lsp_rating=t.integer("lsp_rating", 1, 5),
+        lsp_notes=t.text("lsp_notes"),
+    )
+    t.finish()
+    return lang
+
+
+def parse_repo(t: "Table") -> Repo:
+    host = t.text("host", required=True, choices=HOSTS) or ""
+    repo = Repo(host, t.text("repo", required=True, pattern=OWNER_REPO) or "", t.url("api"))
+    t.finish()
+    return repo
+
+
+def parse_forum(t: "Table") -> Forum:
+    forum = Forum(t.text("kind", required=True, choices=FORUM_KINDS) or "", t.url("url", required=True) or "")
+    t.finish()
+    return forum
+
+
+def parse_lsp(t: "Table") -> Lsp:
+    lsp = Lsp(t.text("name", required=True) or "", t.text("repo", required=True, pattern=OWNER_REPO) or "",
+              t.text("path"), t.boolean("shared"))
+    t.finish()
+    return lsp
+
+
+class Table:
+    def __init__(self, data: dict[str, JSON], path: str, problems: list[str]) -> None:
+        self.data, self.path, self.problems = data, path, problems
+        self.used: set[str] = set()
+
+    def finish(self) -> None:
+        for key in self.data.keys() - self.used:
+            self.problem(key, f"unknown key {key!r}")
+
+    def problem(self, key: str, message: str) -> None:
+        self.problems.append(f"{self.at(key)}: {message}")
+
+    def at(self, key: str) -> str:
+        return f"{self.path}.{key}" if self.path else key
+
+    def get(self, key: str, required: bool) -> object:
+        self.used.add(key)
+        if key not in self.data and required:
+            self.problem(key, "missing required field")
+        return self.data.get(key)
+
+    def text(self, key: str, required: bool = False, pattern: str | None = None, choices: set[str] | None = None) -> str | None:
+        v = self.get(key, required)
+        if v is None:
+            return None
+        if not isinstance(v, str) or not v.strip():
+            self.problem(key, f"expected a non-empty string, got {v!r}")
+            return None
+        self.check(key, v, pattern, choices)
+        return v
+
+    def check(self, key: str, v: str, pattern: str | None, choices: set[str] | None) -> None:
+        if pattern and not re.fullmatch(pattern, v):
+            self.problem(key, f"{v!r} does not match {pattern}")
+        if choices and v not in choices:
+            self.problem(key, f"{v!r} is not one of {', '.join(sorted(choices))}")
+
+    def texts(self, key: str, pattern: str | None = None) -> tuple[str, ...]:
+        v = self.get(key, False)
+        if v is None:
+            return ()
+        if not isinstance(v, list):
+            self.problem(key, f"expected a list of strings, got {v!r}")
+            return ()
+        out = []
+        for i, x in enumerate(v):
+            if not isinstance(x, str) or not x.strip():
+                self.problem(f"{key}[{i}]", f"expected a non-empty string, got {x!r}")
+                continue
+            self.check(f"{key}[{i}]", x, pattern, None)
+            out.append(x)
+        return tuple(out)
+
+    def integer(self, key: str, low: int, high: int) -> int | None:
+        v = self.get(key, False)
+        if v is None:
+            return None
+        if not isinstance(v, int) or isinstance(v, bool) or not low <= v <= high:
+            self.problem(key, f"expected an integer from {low} to {high}, got {v!r}")
+            return None
+        return v
+
+    def boolean(self, key: str) -> bool:
+        v = self.get(key, False)
+        if v is not None and not isinstance(v, bool):
+            self.problem(key, f"expected true or false, got {v!r}")
+        return v is True
+
+    def url(self, key: str, required: bool = False) -> str | None:
+        v = self.text(key, required)
+        if v is None:
+            return None
+        u = urllib.parse.urlsplit(v)
+        if u.scheme != "https" or not u.hostname or "." not in u.hostname:
+            self.problem(key, f"expected an https URL with a host, got {v!r}")
+            return None
+        return v
+
+    def table(self, key: str) -> "Table | None":
+        v = self.get(key, False)
+        if v is None:
+            return None
+        if not isinstance(v, dict):
+            self.problem(key, f"expected a table, got {v!r}")
+            return None
+        return Table(v, self.at(key), self.problems)
+
+    def tables(self, key: str, required: bool = False) -> list["Table"]:
+        v = self.get(key, required)
+        if v is None:
+            return []
+        if not isinstance(v, list) or not all(isinstance(x, dict) for x in v):
+            self.problem(key, "expected an array of tables")
+            return []
+        return [Table(x, f"{self.at(key)}[{i}]", self.problems) for i, x in enumerate(v)]
 
 
 # ---------- Metric helpers ----------
@@ -247,48 +436,45 @@ def carry_forward(metrics: Metrics, old: Metrics) -> None:
 
 # ---------- Development ----------
 
-def development(lang: Language) -> Metrics:
+def development(lang: Language) -> tuple[Metrics, Canonical | None]:
     keys = CATEGORIES["Development"]
-    repos = lang.get("repos", [])
-    if not repos:
-        return {k: missing("not measured: no repo configured") for k in keys}
-    canonical, notes = pick_canonical(repos)
+    if not lang.repos:
+        return {k: missing("not measured: no repo configured") for k in keys}, None
+    canonical, notes = pick_canonical(lang.repos)
     if not canonical:
-        return {k: missing("not measured: no repo reachable; " + "; ".join(notes)) for k in keys}
-    lang["_canonical"] = canonical
-    fetcher = github_activity if canonical["host"] == "github" else forgejo_activity
+        return {k: missing("not measured: no repo reachable; " + "; ".join(notes)) for k in keys}, None
+    fetcher = github_activity if canonical.host == "github" else forgejo_activity
     out = guarded(keys, fetcher, canonical)
     if notes and out["days_since_commit"]["value"] is not None:
         out["days_since_commit"]["note"] = "; ".join(notes)
-    return out
+    return out, canonical
 
 
-def pick_canonical(repos: list[Repo]) -> tuple[Canonical | None, list[str]]:
+def pick_canonical(repos: tuple[Repo, ...]) -> tuple[Canonical | None, list[str]]:
     best: Canonical | None = None
     notes: list[str] = []
     for r in repos:
         try:
-            info = repo_info(r)
+            c = repo_info(r)
         except Exception as e:
-            notes.append(f"{r['host']}:{r['repo']} unreachable ({short(e)[:60]})")
+            notes.append(f"{r.host}:{r.repo} unreachable ({short(e)[:60]})")
             continue
-        if info["mirror"]:
-            notes.append(f"{r['host']}:{r['repo']} is a mirror")
+        if c.mirror:
+            notes.append(f"{r.host}:{r.repo} is a mirror")
             continue
-        if best is None or info["pushed"] > best["pushed"]:
-            best = {**r, **info}
+        if best is None or c.pushed > best.pushed:
+            best = c
     if best and len(repos) > 1:
-        notes.append(f"canonical repo detected as {best['host']}:{best['repo']}")
+        notes.append(f"canonical repo detected as {best.host}:{best.repo}")
     return best, notes
 
 
-def repo_info(r: Repo) -> RepoInfo:
-    if r["host"] == "github":
-        d = gh(f"/repos/{r['repo']}")
-        return {"mirror": bool(d.get("mirror_url")), "pushed": str(d["pushed_at"]), "web": str(d["html_url"])}
-    base = forgejo_base(r)
-    d = get_json(f"{base}/repos/{r['repo']}")
-    return {"mirror": bool(d.get("mirror", False)), "pushed": str(d["updated_at"]), "web": str(d["html_url"])}
+def repo_info(r: Repo) -> Canonical:
+    if r.host == "github":
+        d = gh(f"/repos/{r.repo}")
+        return Canonical(r.host, r.repo, r.api, bool(d.get("mirror_url")), str(d["pushed_at"]), str(d["html_url"]))
+    d = get_json(f"{forgejo_base(r.host, r.api)}/repos/{r.repo}")
+    return Canonical(r.host, r.repo, r.api, bool(d.get("mirror", False)), str(d["updated_at"]), str(d["html_url"]))
 
 
 @dataclass(frozen=True)
@@ -303,7 +489,7 @@ def parse_commit(c: JSON) -> Commit:
 
 
 def github_activity(r: Canonical) -> Metrics:
-    repo, web = r["repo"], r["web"]
+    repo, web = r.repo, r.web
     since_12m = (NOW - timedelta(days=365)).isoformat()
     since_90 = NOW - timedelta(days=90)
     commits = gh_paged(f"/repos/{repo}/commits", {"since": since_12m}, limit=250)
@@ -397,8 +583,8 @@ def github_outside_prs(repo: str, web: str) -> Metrics:
     }
 
 
-def forgejo_base(r: Repo) -> str:
-    return r.get("api") or f"https://{r['host']}.org/api/v1"
+def forgejo_base(host: str, api: str | None) -> str:
+    return api or f"https://{host}.org/api/v1"
 
 
 @dataclass(frozen=True)
@@ -415,7 +601,7 @@ def parse_forgejo_pull(p: JSON) -> ForgejoPull:
 
 
 def forgejo_activity(r: Canonical) -> Metrics:
-    base, repo, web = forgejo_base(r), r["repo"], r["web"]
+    base, repo, web = forgejo_base(r.host, r.api), r.repo, r.web
     since_90 = NOW - timedelta(days=90)
     commits = forgejo_paged(f"{base}/repos/{repo}/commits", {"since": (NOW - timedelta(days=365)).isoformat(), "stat": "false", "files": "false", "verification": "false"})
     rows = [parse_commit(c) for c in commits]
@@ -449,10 +635,10 @@ def forgejo_activity(r: Canonical) -> Metrics:
 
 def community(lang: Language) -> Metrics:
     out: Metrics = {}
-    out.update(guarded(["reddit_per_week"], reddit, lang.get("subreddit")))
-    out.update(guarded(["forum_posts_7d", "forum_topics_7d"], forum, lang.get("forum")))
+    out.update(guarded(["reddit_per_week"], reddit, lang.subreddit))
+    out.update(guarded(["forum_posts_7d", "forum_topics_7d"], forum, lang.forum))
     out.update(guarded(["discussions_30d"], discussions, lang))
-    out.update(guarded(["discord_members", "discord_online"], discord, lang.get("discord_invite")))
+    out.update(guarded(["discord_members", "discord_online"], discord, lang.discord_invite))
     out["platforms"] = platforms(lang)
     out["x_activity"] = x_activity(lang)
     return out
@@ -494,16 +680,16 @@ def forum(cfg: Forum | None) -> Metrics:
     keys = ["forum_posts_7d", "forum_topics_7d"]
     if not cfg:
         return {k: missing("none configured") for k in keys}
-    url = cfg["url"].rstrip("/")
-    if cfg["kind"] == "discourse":
+    url = cfg.url.rstrip("/")
+    if cfg.kind == "discourse":
         stats = get_json(f"{url}/about.json", headers={"Accept": "application/json"})["about"]["stats"]
         return {
             "forum_posts_7d": ok(stats["posts_7_days"], url, display=f"{stats['posts_7_days']} ({stats['posts_30_days']} in 30d)"),
             "forum_topics_7d": ok(stats["topics_7_days"], url, display=f"{stats['topics_7_days']} ({stats['topics_30_days']} in 30d)"),
         }
-    if cfg["kind"] == "nimforum":
+    if cfg.kind == "nimforum":
         return nimforum(url)
-    return {k: missing(f"not measured: unknown forum kind {cfg['kind']}") for k in keys}
+    return {k: missing(f"not measured: unknown forum kind {cfg.kind}") for k in keys}
 
 
 @dataclass(frozen=True)
@@ -535,7 +721,7 @@ def nimforum(url: str) -> Metrics:
 
 
 def discussions(lang: Language) -> Metrics:
-    repo = lang.get("github_discussions")
+    repo = lang.github_discussions
     if not repo:
         return {"discussions_30d": missing("none configured")}
     web = f"https://github.com/{repo}/discussions"
@@ -562,17 +748,17 @@ def discord(invite: str | None) -> Metrics:
 
 def platforms(lang: Language) -> Metric:
     found = []
-    if lang.get("subreddit"): found.append("Reddit")
-    if lang.get("forum"): found.append("Forum")
-    if lang.get("github_discussions"): found.append("GitHub Discussions")
-    if lang.get("discord_invite"): found.append("Discord")
-    found += [p for p in lang.get("other_platforms", []) if p not in found]
+    if lang.subreddit: found.append("Reddit")
+    if lang.forum: found.append("Forum")
+    if lang.github_discussions: found.append("GitHub Discussions")
+    if lang.discord_invite: found.append("Discord")
+    found += [p for p in lang.other_platforms if p not in found]
     return ok(len(found), None, "counted from languages.toml", display=f"{len(found)} ({', '.join(found)})")
 
 
 def x_activity(lang: Language) -> Metric:
-    accounts = lang.get("x_accounts", [])
-    note = lang.get("x_notes") or "not measured: no X API credentials in CI"
+    accounts = lang.x_accounts
+    note = lang.x_notes or "not measured: no X API credentials in CI"
     links = ", ".join(f"@{a}" for a in accounts) or "none listed"
     return {"value": None, "source": f"https://x.com/{accounts[0]}" if accounts else None, "note": f"{note}; accounts: {links}"}
 
@@ -581,12 +767,12 @@ def x_activity(lang: Language) -> Metric:
 
 def editors(lang: Language) -> Metrics:
     out: Metrics = {}
-    out.update(guarded(["zed_days", "zed_downloads"], zed, lang.get("zed", [])))
-    out.update(guarded(["vscode_days", "vscode_installs", "vscode_rating"], vscode, lang.get("vscode", [])))
-    out.update(guarded(["openvsx_days", "openvsx_downloads"], openvsx, lang.get("openvsx", [])))
-    out.update(guarded(["lsp_days", "lsp_commits_90d"], lsp, lang.get("lsp")))
-    rating = lang.get("lsp_rating")
-    notes = lang.get("lsp_notes")
+    out.update(guarded(["zed_days", "zed_downloads"], zed, lang.zed))
+    out.update(guarded(["vscode_days", "vscode_installs", "vscode_rating"], vscode, lang.vscode))
+    out.update(guarded(["openvsx_days", "openvsx_downloads"], openvsx, lang.openvsx))
+    out.update(guarded(["lsp_days", "lsp_commits_90d"], lsp, lang.lsp))
+    rating = lang.lsp_rating
+    notes = lang.lsp_notes
     out["lsp_rating"] = ok(rating, None, notes) if rating else missing(f"not rated; {notes}" if notes else "not rated (manual field in languages.toml)")
     return out
 
@@ -604,7 +790,7 @@ class ZedExtension:
     downloads: int
 
 
-def zed(ids: list[str]) -> Metrics:
+def zed(ids: tuple[str, ...]) -> Metrics:
     if not ids:
         return {"zed_days": missing("none configured"), "zed_downloads": missing("none configured")}
     found = [ZedExtension(i, str(e["version"]), str(e["published_at"]), str(e["repository"]), int(e["download_count"]))
@@ -641,7 +827,7 @@ def parse_vscode(i: str, e: JSON) -> VscodeExtension:
                            float(rating) if rating is not None else None, int(st.get("ratingcount", 0)))
 
 
-def vscode(ids: list[str]) -> Metrics:
+def vscode(ids: tuple[str, ...]) -> Metrics:
     keys = ("vscode_days", "vscode_installs", "vscode_rating")
     if not ids:
         return {k: missing("none configured") for k in keys}
@@ -671,7 +857,7 @@ class OpenVsxExtension:
     downloads: int
 
 
-def openvsx(ids: list[str]) -> Metrics:
+def openvsx(ids: tuple[str, ...]) -> Metrics:
     keys = ("openvsx_days", "openvsx_downloads")
     if not ids:
         return {k: missing("none configured") for k in keys}
@@ -700,17 +886,17 @@ def openvsx(ids: list[str]) -> Metrics:
 def lsp(cfg: Lsp | None) -> Metrics:
     if not cfg:
         return {k: missing("none configured") for k in ("lsp_days", "lsp_commits_90d")}
-    repo = cfg["repo"]
+    repo = cfg.repo
     web = f"https://github.com/{repo}"
     since = (NOW - timedelta(days=90)).isoformat()
-    path: Params = {"path": cfg["path"]} if cfg.get("path") else {}
+    path: Params = {"path": cfg.path} if cfg.path else {}
     recent = gh_paged(f"/repos/{repo}/commits", {"since": since, **path})
     last = recent[0] if recent else (gh(f"/repos/{repo}/commits", {"per_page": 1, **path}) or [None])[0]
-    note = cfg["name"]
+    note = cfg.name
     if not last:
         return {"lsp_days": missing("not measured: no commits", web), "lsp_commits_90d": ok(0, web, note)}
     when = parse_commit(last).date
-    shared = " (shared with compiler repo)" if cfg.get("shared") else ""
+    shared = " (shared with compiler repo)" if cfg.shared else ""
     return {
         "lsp_days": ok(days_since(when), f"{web}/commits", note, display=f"{days_since(when)} ({when[:10]})"),
         "lsp_commits_90d": ok(len(recent), f"{web}/commits", note + shared),
@@ -974,4 +1160,7 @@ document.querySelectorAll("table.sortable th").forEach((th, i) => th.addEventLis
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main(sys.argv[1:])
+    except ConfigError as e:
+        sys.exit(str(e))

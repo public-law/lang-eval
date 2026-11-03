@@ -15,4 +15,6 @@ jobs:
       - uses: astral-sh/setup-uv@e92bafb6253dcd438e0484186d7669ea7a8ca1cc # v6.4.3
         with:
           version: "0.13.5"
-      - run: uvx --exclude-newer 2026-11-01T00:00:00Z --python 3.12.15 mypy==2.4.1 --strict lang_eval.py
+      - run: uvx --exclude-newer 2026-11-01T00:00:00Z --python 3.12.15 mypy==2.4.1 --strict lang_eval.py test_config.py
+      - run: uv run --python 3.12.15 --no-project python -m unittest -v
+      - run: ./lang_eval.py --check-config

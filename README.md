@@ -14,11 +14,15 @@ GITHUB_TOKEN=$(gh auth token) ./lang_eval.py
 
 Output goes to `docs/index.html` and `docs/data.json`. A GitHub Action reruns it weekly and deploys to Pages.
 
-Type check, as CI does:
+Checks, as CI runs them:
 
 ```sh
-uvx --exclude-newer 2026-11-01T00:00:00Z --python 3.12.15 mypy==2.4.1 --strict lang_eval.py
+uvx --exclude-newer 2026-11-01T00:00:00Z --python 3.12.15 mypy==2.4.1 --strict lang_eval.py test_config.py
+uv run --python 3.12.15 --no-project python -m unittest
+./lang_eval.py --check-config
 ```
+
+`languages.toml` is validated on every run. Unknown keys, missing or mistyped fields, bad URLs, ratings outside 1 to 5, and duplicate names are all reported at once with their locations.
 
 ## Add a language
 
