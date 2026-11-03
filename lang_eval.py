@@ -708,7 +708,9 @@ def metric_row(key, m):
         value = f'<span class="nm">{"n/a" if (m.get("note") or "").startswith("none") else "not measured"}</span>'
     else:
         shown = m.get("display") or (f"{v:,}" if isinstance(v, int) else str(v))
-        value = f'{esc(shown)} <span class="dim">{esc(unit)}</span>'
+        head, _, rest = shown.partition(" ")
+        head = head.removesuffix(unit) if unit == "%" else head
+        value = f'{esc(head)} <span class="dim">{esc(unit)}</span> {esc(rest)}'
     if "stale" in (m.get("display") or ""):
         value = f'<span class="warn">{value}</span>'
     src = f' <a class="src" href="{esc(m["source"])}">source</a>' if m.get("source") else ""
