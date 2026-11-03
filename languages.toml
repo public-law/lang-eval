@@ -54,6 +54,7 @@ zed = ["roc"]
 vscode = ["IvanDemchenko.roc-lang-unofficial"]
 openvsx = ["IvanDemchenko.roc-lang-unofficial"]
 lsp = { name = "roc language server (in compiler repo)", repo = "roc-lang/roc" }
+subreddit = "roc_lang"
 
 [[language]]
 name = "Elixir"
