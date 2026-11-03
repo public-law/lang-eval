@@ -5,7 +5,7 @@ on:
     - cron: "17 9 * * 1"
   workflow_dispatch:
   push:
-    branches: [main]
+    branches: [master]
     paths: ["languages.toml", "lang_eval.py"]
 
 permissions:
@@ -33,7 +33,7 @@ jobs:
           git config user.name "Robb Shecter"
           git config user.email "robb@public.law"
           git add docs
-          git diff --cached --quiet || (git commit -m "Regenerate page" && git pull --rebase && git push)
+          git diff --cached --quiet || (git commit -m "Regenerate page" && git pull --rebase -X theirs && git push)
       - uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa # v3.0.1
         with:
           path: docs
