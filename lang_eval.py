@@ -600,6 +600,23 @@ def parse_forgejo_pull(p: JSON) -> ForgejoPull:
                        parse_time(p["closed_at"] or p["updated_at"]))
 
 
+def forgejo_release(base: str, repo: str, web: str) -> Metric:
+    try:
+        rels = parse_releases(get_json(f"{base}/repos/{repo}/releases", {"limit": 30}))
+    except urllib.error.HTTPError as e:
+        if e.code != 404:
+            raise
+        rels = []
+    if rels:
+        when = rels[0].published_at
+        return ok(days_since(when), f"{web}/releases", display=f"{days_since(when)} ({rels[0].tag}, {when[:10]})")
+    tags = get_json(f"{base}/repos/{repo}/tags", {"limit": 1})
+    if not tags:
+        return missing("not measured: no releases or tags", f"{web}/releases")
+    when = str(tags[0]["commit"]["created"])
+    return ok(days_since(when), f"{web}/tags", note="from latest tag; releases disabled or empty", display=f"{days_since(when)} ({tags[0]['name']}, {when[:10]})")
+
+
 def forgejo_activity(r: Canonical) -> Metrics:
     base, repo, web = forgejo_base(r.host, r.api), r.repo, r.web
     since_90 = NOW - timedelta(days=90)
@@ -607,8 +624,7 @@ def forgejo_activity(r: Canonical) -> Metrics:
     rows = [parse_commit(c) for c in commits]
     last = max((x.date for x in rows), default=None)
     out = commit_metrics(rows, last, since_90, f"{web}/commits")
-    rels = parse_releases(get_json(f"{base}/repos/{repo}/releases", {"limit": 30}))
-    out["days_since_release"] = ok(days_since(rels[0].published_at), f"{web}/releases") if rels else missing("not measured: no releases", f"{web}/releases")
+    out["days_since_release"] = forgejo_release(base, repo, web)
     note = "Forgejo has no author association; outside means not a public member of the owning org"
     owner = repo.split("/")[0]
     try:
