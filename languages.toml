@@ -81,3 +81,18 @@ zed = ["gleam"]
 vscode = ["Gleam.gleam"]
 openvsx = ["Gleam.gleam"]
 lsp = { name = "gleam lsp (in compiler repo)", repo = "gleam-lang/gleam" }
+
+[[language]]
+name = "Zig"
+repos = [
+  { host = "codeberg", repo = "ziglang/zig" },
+  { host = "github", repo = "ziglang/zig" },
+]
+subreddit = "Zig"
+forum = { kind = "discourse", url = "https://ziggit.dev" }
+discord_invite = "zig"
+other_platforms = ["IRC", "Zulip", "Matrix", "Telegram", "Slack"]
+zed = ["zig"]
+vscode = ["ziglang.vscode-zig"]
+openvsx = ["ziglang.vscode-zig"]
+lsp = { name = "ZLS", repo = "zigtools/zls" }
