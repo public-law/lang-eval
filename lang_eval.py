@@ -11,6 +11,7 @@ import html
 import json
 import os
 import re
+import subprocess
 import sys
 import time
 import tomllib
@@ -32,6 +33,7 @@ ROOT = Path(__file__).parent
 CONFIG = ROOT / "languages.toml"
 DATA = ROOT / "docs" / "data.json"
 PAGE = ROOT / "docs" / "index.html"
+HISTORY = ROOT / "docs" / "history.jsonl"
 NOW = datetime.now(timezone.utc)
 UA = "lang-eval/0.1 (+https://github.com/public-law/lang-eval)"
 TOKEN = os.environ.get("GITHUB_TOKEN") or os.environ.get("GH_TOKEN")
@@ -88,6 +90,8 @@ class Metric(TypedDict):
     display: NotRequired[str | None]
     measured_at: NotRequired[str]
     cached_from: NotRequired[str | None]
+    series: NotRequired[dict[str, int]]
+    values: NotRequired[list[float | None]]
 
 
 type Metrics = dict[str, Metric]
@@ -129,6 +133,25 @@ class Lsp:
 
 
 @dataclass(frozen=True)
+class Packages:
+    kind: str
+    url: str | None = None
+
+
+@dataclass(frozen=True)
+class Governance:
+    body: str | None = None
+    body_url: str | None = None
+    roadmap: str | None = None
+    roadmap_updated: str | None = None
+    rfc_url: str | None = None
+    funding: str | None = None
+    funding_url: str | None = None
+    notes: str | None = None
+    sources: tuple[str, ...] = ()
+
+
+@dataclass(frozen=True)
 class Language:
     name: str
     raw: dict[str, JSON] = field(repr=False, compare=False)
@@ -146,6 +169,9 @@ class Language:
     lsp: Lsp | None = None
     lsp_rating: int | None = None
     lsp_notes: str | None = None
+    hn_query: str | None = None
+    packages: Packages | None = None
+    governance: Governance | None = None
 
 
 class Summary(TypedDict):
@@ -165,10 +191,11 @@ def main(argv: list[str]) -> None:
         log(f"{CONFIG.name}: {len(langs)} languages, no problems")
         return
     previous = load_previous()
+    history = load_history()
     results: list[Result] = []
     for lang in langs:
         log(f"== {lang.name}")
-        metrics, canonical = evaluate(lang)
+        metrics, canonical = evaluate(lang, history)
         carry_forward(metrics, previous.get(lang.name, {}))
         s = summarize(metrics)
         config = {**lang.raw, **({"_canonical": canonical.to_json()} if canonical else {})}
@@ -176,14 +203,16 @@ def main(argv: list[str]) -> None:
     results.sort(key=lambda r: -(r["overall"] or 0))
     DATA.parent.mkdir(exist_ok=True)
     DATA.write_text(json.dumps({"generated_at": NOW.isoformat(), "languages": results}, indent=1, default=str))
-    PAGE.write_text(render(results))
+    append_history(results)
+    PAGE.write_text(render(results, load_history()))
     log(f"wrote {PAGE}")
 
 
-def evaluate(lang: Language) -> tuple[Metrics, Canonical | None]:
+def evaluate(lang: Language, history: list[dict[str, JSON]] | None = None) -> tuple[Metrics, Canonical | None]:
     m, canonical = development(lang)
     m.update(community(lang))
     m.update(editors(lang))
+    m.update(trajectory(lang, canonical, history or load_history()))
     return m, canonical
 
 
@@ -195,7 +224,7 @@ class ConfigError(Exception):
         super().__init__(f"{CONFIG.name}: {len(problems)} problem(s)\n" + "\n".join(f"  {p}" for p in problems))
 
 
-HOSTS = {"github", "codeberg"}
+HOSTS = {"github", "codeberg", "gitlab"}
 FORUM_KINDS = {"discourse", "nimforum"}
 SLUG = r"[A-Za-z0-9_.-]+"
 OWNER_REPO = rf"{SLUG}/{SLUG}"
@@ -243,6 +272,9 @@ def parse_language(t: "Table") -> Language:
         lsp=parse_lsp(lsp) if lsp else None,
         lsp_rating=t.integer("lsp_rating", 1, 5),
         lsp_notes=t.text("lsp_notes"),
+        hn_query=t.text("hn_query"),
+        packages=parse_packages(pkg) if (pkg := t.table("packages")) else None,
+        governance=parse_governance(gov) if (gov := t.table("governance")) else None,
     )
     t.finish()
     return lang
@@ -266,6 +298,32 @@ def parse_lsp(t: "Table") -> Lsp:
               t.text("path"), t.boolean("shared"))
     t.finish()
     return lsp
+
+
+PACKAGE_KINDS = {"hex"}
+DATE = r"[0-9]{4}-[0-9]{2}-[0-9]{2}"
+
+
+def parse_packages(t: "Table") -> Packages:
+    pkg = Packages(t.text("kind", required=True, choices=PACKAGE_KINDS) or "", t.url("url"))
+    t.finish()
+    return pkg
+
+
+def parse_governance(t: "Table") -> Governance:
+    gov = Governance(
+        body=t.text("body"),
+        body_url=t.url("body_url"),
+        roadmap=t.url("roadmap"),
+        roadmap_updated=t.text("roadmap_updated", pattern=DATE),
+        rfc_url=t.url("rfc_url"),
+        funding=t.text("funding"),
+        funding_url=t.url("funding_url"),
+        notes=t.text("notes"),
+        sources=t.texts("sources", pattern=r"https://\S+"),
+    )
+    t.finish()
+    return gov
 
 
 class Table:
@@ -443,7 +501,7 @@ def development(lang: Language) -> tuple[Metrics, Canonical | None]:
     canonical, notes = pick_canonical(lang.repos)
     if not canonical:
         return {k: missing("not measured: no repo reachable; " + "; ".join(notes)) for k in keys}, None
-    fetcher = github_activity if canonical.host == "github" else forgejo_activity
+    fetcher = {"github": github_activity, "gitlab": gitlab_activity}.get(canonical.host, forgejo_activity)
     out = guarded(keys, fetcher, canonical)
     if notes and out["days_since_commit"]["value"] is not None:
         out["days_since_commit"]["note"] = "; ".join(notes)
@@ -473,6 +531,10 @@ def repo_info(r: Repo) -> Canonical:
     if r.host == "github":
         d = gh(f"/repos/{r.repo}")
         return Canonical(r.host, r.repo, r.api, bool(d.get("mirror_url")), str(d["pushed_at"]), str(d["html_url"]))
+    if r.host == "gitlab":
+        d = get_json(f"{gitlab_base(r.api)}/projects/{quote_path(r.repo)}")
+        pushed = str(d.get("last_activity_at") or d.get("updated_at"))
+        return Canonical(r.host, r.repo, r.api, bool(d.get("mirror")), pushed, str(d["web_url"]))
     d = get_json(f"{forgejo_base(r.host, r.api)}/repos/{r.repo}")
     return Canonical(r.host, r.repo, r.api, bool(d.get("mirror", False)), str(d["updated_at"]), str(d["html_url"]))
 
@@ -990,6 +1052,10 @@ def get_json(url: str, params: Params | None = None, data: JSON = None, headers:
 
 
 def get(url: str, params: Params | None = None, data: JSON = None, headers: dict[str, str] | None = None, attempts: int = 4) -> bytes:
+    return get_response(url, params, data, headers, attempts)[0]
+
+
+def get_response(url: str, params: Params | None = None, data: JSON = None, headers: dict[str, str] | None = None, attempts: int = 4) -> tuple[bytes, dict[str, str]]:
     if params:
         url += "?" + urllib.parse.urlencode(params)
     body = json.dumps(data).encode() if data is not None else None
@@ -998,7 +1064,7 @@ def get(url: str, params: Params | None = None, data: JSON = None, headers: dict
         try:
             with urllib.request.urlopen(urllib.request.Request(url, body, hdrs), timeout=60) as r:
                 content: bytes = r.read()
-                return content
+                return content, dict(r.headers)
         except urllib.error.HTTPError as e:
             wait = rate_limit_wait(e)
             if wait is None or attempt == attempts - 1:
@@ -1032,13 +1098,581 @@ def log(msg: str) -> None:
     print(msg, file=sys.stderr, flush=True)
 
 
+
+
+def gitlab_base(api: str | None) -> str:
+    return (api or "https://gitlab.com/api/v4").rstrip("/")
+
+
+def quote_path(repo: str) -> str:
+    return urllib.parse.quote(repo, safe="")
+
+
+def parse_gitlab_commit(c: JSON) -> Commit:
+    author = str(c.get("author_email") or c.get("author_name") or "unknown")
+    return Commit(author, str(c["created_at"]))
+
+
+def gitlab_paged(url: str, params: Params, stop: Callable[[JSON], bool] | None = None, limit: int = 40) -> list[JSON]:
+    items: list[JSON] = []
+    for page in range(1, limit + 1):
+        batch = get_json(url, {**params, "per_page": 100, "page": page})
+        if not isinstance(batch, list):
+            break
+        items += batch
+        if len(batch) < 100 or (stop and batch and stop(batch[-1])):
+            break
+    return items
+
+
+def gitlab_tag_date(t: JSON) -> str | None:
+    commit = t.get("commit") or {}
+    when = commit.get("committed_date") or commit.get("created_at") or t.get("created_at")
+    return str(when) if when else None
+
+
+def is_prerelease_tag(name: str) -> bool:
+    if re.search(r"(?i)(^|[.-])(rc|alpha|beta|preview|nightly|latest|pre|dev|start)\d*\b", name):
+        return True
+    return not re.search(r"\d+\.\d+", name)
+
+
+def release_key(name: str) -> str:
+    return re.sub(r"(?i)-release$", "", name)
+
+
+def gitlab_release(base: str, repo: str, web: str) -> Metric:
+    encoded = quote_path(repo)
+    rels = parse_releases(get_json(f"{base}/projects/{encoded}/releases", {"per_page": 30}) or [])
+    if rels:
+        when = rels[0].published_at
+        return ok(days_since(when), f"{web}/-/releases", display=f"{days_since(when)} ({rels[0].tag}, {when[:10]})")
+    tags = [t for t in gitlab_paged(f"{base}/projects/{encoded}/repository/tags", {}) if not is_prerelease_tag(str(t["name"])) and gitlab_tag_date(t)]
+    if not tags:
+        return missing("not measured: no stable releases or tags", f"{web}/-/tags")
+    when = str(gitlab_tag_date(tags[0]))
+    return ok(days_since(when), f"{web}/-/tags", note="from latest stable tag; GitLab releases empty or unused",
+              display=f"{days_since(when)} ({release_key(str(tags[0]['name']))}, {when[:10]})")
+
+
+def gitlab_activity(r: Canonical) -> Metrics:
+    base, repo, web = gitlab_base(r.api), r.repo, r.web
+    encoded = quote_path(repo)
+    since_90 = NOW - timedelta(days=90)
+    since_12m = NOW - timedelta(days=365)
+    commits = gitlab_paged(f"{base}/projects/{encoded}/repository/commits", {"since": since_12m.isoformat()})
+    rows = [parse_gitlab_commit(c) for c in commits]
+    last = max((x.date for x in rows), default=None)
+    out = commit_metrics(rows, last, since_90, f"{web}/-/commits")
+    if len(commits) >= 4000:
+        for k in ("authors_12m", "top_share_12m"):
+            out[k]["note"] = "history capped at newest 4,000 commits"
+    out["days_since_release"] = gitlab_release(base, repo, web)
+    note = "GitLab has no author association; outside means not a public member of the owning group"
+    owner = repo.split("/")[0]
+    try:
+        members = {str(u["username"]) for u in gitlab_paged(f"{base}/groups/{quote_path(owner)}/members", {})}
+    except Exception:
+        members = {owner}
+    mrs = gitlab_paged(f"{base}/projects/{encoded}/merge_requests", {"state": "merged", "order_by": "updated_at", "sort": "desc"},
+                       stop=lambda p: parse_time(p.get("merged_at") or p["updated_at"]) < since_90)
+    merged_90 = [p for p in mrs if p.get("merged_at") and parse_time(p["merged_at"]) >= since_90]
+    closed = gitlab_paged(f"{base}/projects/{encoded}/merge_requests", {"state": "closed", "order_by": "updated_at", "sort": "desc"},
+                          stop=lambda p: parse_time(p["updated_at"]) < since_90)
+    closed_90 = [p for p in closed if not p.get("merged_at") and parse_time(p["updated_at"]) >= since_90]
+    open_ = get_json(f"{base}/projects/{encoded}/merge_requests", {"state": "opened", "per_page": 100})
+    if not isinstance(open_, list):
+        open_ = []
+    outside_merged = [p for p in merged_90 if str((p.get("author") or {}).get("username")) not in members]
+    outside_closed = [p for p in closed_90 if str((p.get("author") or {}).get("username")) not in members]
+    outside_open = [p for p in open_ if str((p.get("author") or {}).get("username")) not in members]
+    mergers = {str((p.get("merged_by") or {}).get("username")) for p in merged_90 if p.get("merged_by")}
+    mergers.discard("None")
+    src = f"{web}/-/merge_requests"
+    total = len(outside_merged) + len(outside_closed)
+    out["mergers_90d"] = (ok(len(mergers), src, display=f"{len(mergers)} ({', '.join(sorted(x for x in mergers if x)[:8])}{', ...' if len(mergers) > 8 else ''})")
+                          if mergers or not merged_90 else missing("not measured: API did not report who merged", src))
+    out["outside_merged_90d"] = ok(len(outside_merged), src, note, display=f"{len(outside_merged)} of {len(merged_90)} merged")
+    out["outside_accept_90d"] = ok(round(100 * len(outside_merged) / total, 1), src, note) if total else missing("not measured: no outside MRs closed in 90 days", src)
+    out["outside_open"] = ok(len(outside_open), src, note, display=f"{len(outside_open)} (of {len(open_)} open)")
+    return out
+
+
+# ---------- Trajectory ----------
+
+QUARTERS = 8
+COMMIT_PAGE_CAP = 40
+
+
+def trajectory(lang: Language, canonical: Canonical | None, history: list[dict[str, JSON]]) -> Metrics:
+    cached = cached_quarters(lang.name, history)
+    out: Metrics = {}
+    out.update(guarded(["authors_prior_12m", "authors_change_pct", "authors_retained_pct"], contributor_trend, canonical))
+    out.update(guarded(["commits_quarters", "prs_quarters"], volume_quarters, canonical, cached))
+    out.update(guarded(["releases_per_year", "release_gap_days"], release_cadence, canonical))
+    out.update(guarded(["issues_opened_12m", "issues_closed_12m", "issue_close_ratio"], issue_trend, canonical))
+    out.update(guarded(["packages_last_12m", "packages_prior_12m", "packages_change_pct"], package_trend, lang, cached))
+    out.update(guarded(["hn_quarters"], hn_trend, lang, cached))
+    out["trajectory"] = trajectory_direction(out)
+    return out
+
+
+def cached_quarters(name: str, history: list[dict[str, JSON]]) -> dict[str, dict[str, int]]:
+    found: dict[str, dict[str, int]] = {"commits_quarters": {}, "prs_quarters": {}, "hn_quarters": {}, "packages": {}}
+    complete = {label for label, _, end in recent_quarters() if end < NOW}
+    for row in history:
+        lang = ((row.get("languages") or {}).get(name) or {})
+        for key in ("commits_quarters", "prs_quarters", "hn_quarters"):
+            series = (lang.get(key) or {}).get("series") or {}
+            for q, n in series.items():
+                if q in complete and q not in found[key] and isinstance(n, (int, float)):
+                    found[key][q] = int(n)
+        packs = lang.get("packages_last_12m") or {}
+        if packs.get("series"):
+            for q, n in packs["series"].items():
+                if isinstance(n, (int, float)):
+                    found["packages"][q] = int(n)
+    return found
+
+
+def recent_quarters() -> list[tuple[str, datetime, datetime]]:
+    y, m = NOW.year, ((NOW.month - 1) // 3) * 3 + 1
+    start = datetime(y, m, 1, tzinfo=timezone.utc)
+    out: list[tuple[str, datetime, datetime]] = []
+    for _ in range(QUARTERS):
+        end = start + timedelta(days=92)
+        end = datetime(end.year, ((end.month - 1) // 3) * 3 + 1, 1, tzinfo=timezone.utc)
+        label = f"{start.year}Q{(start.month - 1) // 3 + 1}"
+        out.append((label, start, end))
+        start = datetime(start.year if start.month > 3 else start.year - 1, start.month - 3 if start.month > 3 else 10, 1, tzinfo=timezone.utc)
+    return list(reversed(out))
+
+
+def series_metric(series: dict[str, int], source: str, note: str | None = None) -> Metric:
+    labels = [q for q, _, _ in recent_quarters()]
+    values: list[float | None] = [series.get(q) for q in labels]
+    last4, prev4 = sum(v or 0 for v in values[-4:]), sum(v or 0 for v in values[:4]) if len(values) >= 8 else None
+    change = round(100 * (last4 - prev4) / prev4, 1) if prev4 not in (None, 0) else (100.0 if last4 and prev4 == 0 else None)
+    display = " ".join(f"{v}" if v is not None else "-" for v in values)
+    if change is not None:
+        display += f" ({change:+.0f}% recent 4q vs prior 4q)"
+    m: Metric = ok(change, source, note, display=display)
+    m["series"] = series
+    m["values"] = values
+    return m
+
+
+def contributor_trend(canonical: Canonical | None) -> Metrics:
+    if not canonical:
+        return {k: missing("not measured: no repo reachable") for k in ("authors_prior_12m", "authors_change_pct", "authors_retained_pct")}
+    mid, start = NOW - timedelta(days=365), NOW - timedelta(days=730)
+    rows = list_commits(canonical, start, COMMIT_PAGE_CAP)
+    src = f"{canonical.web}/commits" if canonical.host == "github" else f"{canonical.web}/-/commits"
+    last = {r.author for r in rows if parse_time(r.date) >= mid and not is_bot(r.author)}
+    prior = {r.author for r in rows if start <= parse_time(r.date) < mid and not is_bot(r.author)}
+    note = "history capped; older window may be incomplete" if len(rows) >= COMMIT_PAGE_CAP * 100 else None
+    retained = len(last & prior)
+    change = round(100 * (len(last) - len(prior)) / len(prior), 1) if prior else (100.0 if last else None)
+    retain_pct = round(100 * retained / len(prior), 1) if prior else None
+    return {
+        "authors_prior_12m": ok(len(prior), src, note, display=f"{len(prior)} (vs {len(last)} in last 12 months)"),
+        "authors_change_pct": ok(change, src, note, display=f"{change:+.0f}%" if change is not None else None) if change is not None else missing("not measured: no authors in prior 12 months", src),
+        "authors_retained_pct": ok(retain_pct, src, f"{retained} of {len(prior)} prior-year authors also committed this year",
+                                   display=f"{retain_pct:.0f}% ({retained} of {len(prior)})") if retain_pct is not None else missing("not measured: no authors in prior 12 months", src),
+    }
+
+
+def list_commits(r: Canonical, since: datetime, limit: int) -> list[Commit]:
+    if r.host == "github":
+        return [parse_commit(c) for c in gh_paged(f"/repos/{r.repo}/commits", {"since": since.isoformat()}, limit=limit)]
+    if r.host == "gitlab":
+        url = f"{gitlab_base(r.api)}/projects/{quote_path(r.repo)}/repository/commits"
+        return [parse_gitlab_commit(c) for c in gitlab_paged(url, {"since": since.isoformat()}, limit=limit)]
+    url = f"{forgejo_base(r.host, r.api)}/repos/{r.repo}/commits"
+    return [parse_commit(c) for c in forgejo_paged(url, {"since": since.isoformat(), "stat": "false", "files": "false", "verification": "false"}, limit=limit)]
+
+
+def volume_quarters(canonical: Canonical | None, cached: dict[str, dict[str, int]]) -> Metrics:
+    if not canonical:
+        return {k: missing("not measured: no repo reachable") for k in ("commits_quarters", "prs_quarters")}
+    commits: dict[str, int] = dict(cached.get("commits_quarters") or {})
+    prs: dict[str, int] = dict(cached.get("prs_quarters") or {})
+    missing_q = [(label, start, end) for label, start, end in recent_quarters() if label not in commits]
+    if missing_q and canonical.host != "github":
+        commits.update(bucket_commits(canonical))
+        missing_q = [(label, start, end) for label, start, end in recent_quarters() if label not in commits]
+    for label, start, end in missing_q:
+        commits[label] = count_commits(canonical, start, end)
+    missing_pr = [(label, start, end) for label, start, end in recent_quarters() if label not in prs]
+    if missing_pr and canonical.host != "github":
+        prs.update(bucket_merged_prs(canonical))
+        missing_pr = [(label, start, end) for label, start, end in recent_quarters() if label not in prs]
+    for label, start, end in missing_pr:
+        prs[label] = count_merged_prs(canonical, start, end)
+    commit_src = canonical.web + ("/commits" if canonical.host == "github" else "/-/commits")
+    pr_src = canonical.web + ("/pulls" if canonical.host != "gitlab" else "/-/merge_requests")
+    return {
+        "commits_quarters": series_metric(commits, commit_src),
+        "prs_quarters": series_metric(prs, pr_src),
+    }
+
+
+def quarter_label(when: datetime) -> str:
+    return f"{when.year}Q{(when.month - 1) // 3 + 1}"
+
+
+def bucket_commits(r: Canonical) -> dict[str, int]:
+    start = recent_quarters()[0][1]
+    counts: dict[str, int] = {label: 0 for label, _, _ in recent_quarters()}
+    for row in list_commits(r, start, COMMIT_PAGE_CAP):
+        when = parse_time(row.date)
+        if when >= start:
+            counts[quarter_label(when)] = counts.get(quarter_label(when), 0) + 1
+    return counts
+
+
+def bucket_merged_prs(r: Canonical) -> dict[str, int]:
+    start = recent_quarters()[0][1]
+    counts: dict[str, int] = {label: 0 for label, _, _ in recent_quarters()}
+    if r.host == "gitlab":
+        url = f"{gitlab_base(r.api)}/projects/{quote_path(r.repo)}/merge_requests"
+        rows = gitlab_paged(url, {"state": "merged", "order_by": "updated_at", "sort": "desc"},
+                            stop=lambda p: parse_time(p.get("merged_at") or p["updated_at"]) < start, limit=20)
+        times = [parse_time(p["merged_at"]) for p in rows if p.get("merged_at")]
+    else:
+        url = f"{forgejo_base(r.host, r.api)}/repos/{r.repo}/pulls"
+        rows = forgejo_paged(url, {"state": "closed", "sort": "recentupdate"},
+                             stop=lambda p: parse_time(p["updated_at"]) < start, limit=20)
+        times = [parse_time(p["closed_at"]) for p in rows if p.get("merged") and p.get("closed_at")]
+    for when in times:
+        if when >= start:
+            counts[quarter_label(when)] = counts.get(quarter_label(when), 0) + 1
+    return counts
+
+
+def count_commits(r: Canonical, start: datetime, end: datetime) -> int:
+    if r.host == "github":
+        q = f"repo:{r.repo} committer-date:{start.date().isoformat()}..{(end - timedelta(days=1)).date().isoformat()}"
+        return gh_search_count("/search/commits", q)
+    if r.host == "gitlab":
+        url = f"{gitlab_base(r.api)}/projects/{quote_path(r.repo)}/repository/commits"
+        rows = gitlab_paged(url, {"since": start.isoformat(), "until": end.isoformat()})
+        return len(rows)
+    url = f"{forgejo_base(r.host, r.api)}/repos/{r.repo}/commits"
+    rows = forgejo_paged(url, {"since": start.isoformat(), "stat": "false", "files": "false", "verification": "false"},
+                         stop=lambda c: parse_time(c["commit"]["committer"]["date"]) < start, limit=30)
+    return sum(1 for c in rows if start <= parse_time(c["commit"]["committer"]["date"]) < end)
+
+
+def count_merged_prs(r: Canonical, start: datetime, end: datetime) -> int:
+    if r.host == "github":
+        q = f"repo:{r.repo} is:pr is:merged merged:{start.date().isoformat()}..{(end - timedelta(days=1)).date().isoformat()}"
+        return gh_search_count("/search/issues", q)
+    if r.host == "gitlab":
+        url = f"{gitlab_base(r.api)}/projects/{quote_path(r.repo)}/merge_requests"
+        rows = gitlab_paged(url, {"state": "merged", "order_by": "updated_at", "sort": "desc"},
+                            stop=lambda p: parse_time(p.get("merged_at") or p["updated_at"]) < start, limit=20)
+        return sum(1 for p in rows if p.get("merged_at") and start <= parse_time(p["merged_at"]) < end)
+    url = f"{forgejo_base(r.host, r.api)}/repos/{r.repo}/pulls"
+    rows = forgejo_paged(url, {"state": "closed", "sort": "recentupdate"},
+                         stop=lambda p: parse_time(p["updated_at"]) < start, limit=20)
+    return sum(1 for p in rows if p.get("merged") and p.get("closed_at") and start <= parse_time(p["closed_at"]) < end)
+
+
+def release_cadence(canonical: Canonical | None) -> Metrics:
+    if not canonical:
+        return {k: missing("not measured: no repo reachable") for k in ("releases_per_year", "release_gap_days")}
+    dates = release_dates(canonical)
+    src = canonical.web + ("/releases" if canonical.host == "github" else "/-/tags")
+    if len(dates) < 2:
+        empty = missing("not measured: fewer than two dated stable releases", src)
+        return {"releases_per_year": empty, "release_gap_days": empty}
+    span_days = max((NOW - dates[-1]).days, 1)
+    per_year = round(len(dates) / (span_days / 365.25), 2)
+    gaps = [(dates[i] - dates[i + 1]).days for i in range(len(dates) - 1)]
+    mean = sum(gaps) / len(gaps)
+    return {
+        "releases_per_year": ok(per_year, src, display=f"{per_year} ({len(dates)} stable releases in {span_days} days)"),
+        "release_gap_days": ok(round(mean, 1), src, display=f"{mean:.0f} days mean interval ({min(gaps)}-{max(gaps)})"),
+    }
+
+
+def release_dates(r: Canonical) -> list[datetime]:
+    cutoff = NOW - timedelta(days=365 * 3)
+    dates: list[datetime] = []
+    if r.host == "github":
+        rels = parse_releases(gh_paged(f"/repos/{r.repo}/releases", {}, limit=3))
+        dates = [parse_time(x.published_at) for x in rels]
+        if not dates:
+            tags = gh_paged(f"/repos/{r.repo}/tags", {}, limit=3)
+            for t in tags:
+                if is_prerelease_tag(str(t["name"])):
+                    continue
+                dates.append(parse_time(parse_commit(gh(f"/repos/{r.repo}/commits/{t['commit']['sha']}")).date))
+                if len(dates) >= 12:
+                    break
+    elif r.host == "gitlab":
+        base, enc = gitlab_base(r.api), quote_path(r.repo)
+        rels = parse_releases(get_json(f"{base}/projects/{enc}/releases", {"per_page": 100}) or [])
+        dates = [parse_time(x.published_at) for x in rels]
+        if not dates:
+            for t in gitlab_paged(f"{base}/projects/{enc}/repository/tags", {}, limit=5):
+                if is_prerelease_tag(str(t["name"])):
+                    continue
+                when = gitlab_tag_date(t)
+                if when:
+                    dates.append(parse_time(when))
+    else:
+        try:
+            rels = parse_releases(get_json(f"{forgejo_base(r.host, r.api)}/repos/{r.repo}/releases", {"limit": 50}))
+            dates = [parse_time(x.published_at) for x in rels]
+        except urllib.error.HTTPError as e:
+            if e.code != 404:
+                raise
+            for t in get_json(f"{forgejo_base(r.host, r.api)}/repos/{r.repo}/tags", {"limit": 50}):
+                if is_prerelease_tag(str(t.get("name", ""))) or not t.get("commit", {}).get("created"):
+                    continue
+                dates.append(parse_time(str(t["commit"]["created"])))
+    unique: dict[str, datetime] = {}
+    for d in dates:
+        if d >= cutoff:
+            unique.setdefault(d.date().isoformat(), d)
+    return sorted(unique.values(), reverse=True)
+
+
+def issue_trend(canonical: Canonical | None) -> Metrics:
+    if not canonical:
+        return {k: missing("not measured: no repo reachable") for k in ("issues_opened_12m", "issues_closed_12m", "issue_close_ratio")}
+    start = (NOW - timedelta(days=365)).date().isoformat()
+    if canonical.host == "github":
+        opened = gh_search_count("/search/issues", f"repo:{canonical.repo} is:issue created:>={start}")
+        closed = gh_search_count("/search/issues", f"repo:{canonical.repo} is:issue is:closed closed:>={start}")
+        src = f"{canonical.web}/issues"
+        note = None
+    elif canonical.host == "gitlab":
+        base = gitlab_base(canonical.api)
+        enc = quote_path(canonical.repo)
+        opened_s = get_json(f"{base}/projects/{enc}/issues_statistics", {"created_after": start})["statistics"]["counts"]
+        opened = int(opened_s["all"])
+        closed = int(opened_s["closed"])
+        note = "GitLab counts issues opened in the last 12 months that are now closed, not all closes in the window"
+        unfiltered = get_json(f"{base}/projects/{enc}/issues_statistics")["statistics"]["counts"]
+        try:
+            closed_s = get_json(f"{base}/projects/{enc}/issues_statistics", {"closed_after": start})["statistics"]["counts"]
+            candidate = int(closed_s["closed"] if "closed" in closed_s else closed_s["all"])
+            if candidate != int(unfiltered["closed"]) or int(closed_s["all"]) != int(unfiltered["all"]):
+                closed = candidate
+                note = None
+        except Exception:
+            pass
+        src = f"{canonical.web}/-/issues"
+    else:
+        base = forgejo_base(canonical.host, canonical.api)
+        src = f"{canonical.web}/issues"
+        opened = len(forgejo_paged(f"{base}/repos/{canonical.repo}/issues", {"state": "all", "type": "issues", "since": start},
+                                   stop=lambda i: parse_time(i.get("created_at") or i["updated_at"]) < parse_time(start + "T00:00:00+00:00"), limit=20))
+        closed = 0
+        note = "Forgejo issue close dates are not counted separately; see opened count only"
+        return {
+            "issues_opened_12m": ok(opened, src, note),
+            "issues_closed_12m": missing(note, src),
+            "issue_close_ratio": missing(note, src),
+        }
+    ratio = round(closed / opened, 2) if opened else None
+    return {
+        "issues_opened_12m": ok(opened, src, note),
+        "issues_closed_12m": ok(closed, src, note),
+        "issue_close_ratio": ok(ratio, src, note, display=f"{ratio} ({closed} closed / {opened} opened)") if ratio is not None else missing("not measured: no issues opened in 12 months", src),
+    }
+
+
+def package_trend(lang: Language, cached: dict[str, dict[str, int]]) -> Metrics:
+    keys = ("packages_last_12m", "packages_prior_12m", "packages_change_pct")
+    if not lang.packages:
+        return {k: missing("none configured") for k in keys}
+    if lang.packages.kind == "hex":
+        last, prior, src = hex_new_packages()
+    else:
+        return {k: missing(f"not measured: unknown registry {lang.packages.kind}") for k in keys}
+    change = round(100 * (last - prior) / prior, 1) if prior else (100.0 if last else None)
+    note = "Hex.pm hosts Elixir, Erlang, and Gleam packages; counts are the shared registry"
+    return {
+        "packages_last_12m": ok(last, src, note),
+        "packages_prior_12m": ok(prior, src, note),
+        "packages_change_pct": ok(change, src, note, display=f"{change:+.0f}%") if change is not None else missing("not measured: no packages in prior 12 months", src),
+    }
+
+
+def hex_new_packages() -> tuple[int, int, str]:
+    last = prior = 0
+    mid, start = NOW - timedelta(days=365), NOW - timedelta(days=730)
+    for page in range(1, 80):
+        batch = get_json("https://hex.pm/api/packages", {"sort": "inserted_at", "page": page})
+        if not isinstance(batch, list) or not batch:
+            break
+        for p in batch:
+            when = parse_time(str(p["inserted_at"]))
+            if when >= mid:
+                last += 1
+            elif when >= start:
+                prior += 1
+            else:
+                return last, prior, "https://hex.pm/packages"
+        if parse_time(str(batch[-1]["inserted_at"])) < start:
+            break
+        time.sleep(0.2)
+    return last, prior, "https://hex.pm/packages"
+
+
+def hn_trend(lang: Language, cached: dict[str, dict[str, int]]) -> Metrics:
+    query = lang.hn_query or lang.name
+    series: dict[str, int] = dict(cached.get("hn_quarters") or {})
+    for label, start, end in recent_quarters():
+        if label not in series:
+            series[label] = hn_count(query, start, end)
+    src = "https://hn.algolia.com/?q=" + urllib.parse.quote(query)
+    return {"hn_quarters": series_metric(series, src, f"Algolia HN story search: {query}")}
+
+
+def hn_count(query: str, start: datetime, end: datetime) -> int:
+    d = get_json("https://hn.algolia.com/api/v1/search", {
+        "query": query,
+        "tags": "story",
+        "hitsPerPage": 0,
+        "numericFilters": f"created_at_i>={int(start.timestamp())},created_at_i<{int(end.timestamp())}",
+    })
+    return int(d["nbHits"])
+
+
+def trajectory_direction(m: Metrics) -> Metric:
+    votes: list[str] = []
+    reasons: list[str] = []
+    def vote(key: str, label: str, invert: bool = False) -> None:
+        metric = m.get(key)
+        v = metric["value"] if metric else None
+        if v is None:
+            return
+        raw = -v if invert else v
+        if raw >= 15:
+            votes.append("up"); reasons.append(f"{label} {v:+.0f}%" if not invert else f"{label} {v}")
+        elif raw <= -15:
+            votes.append("down"); reasons.append(f"{label} {v:+.0f}%" if not invert else f"{label} {v}")
+        else:
+            votes.append("flat"); reasons.append(f"{label} steady")
+
+    vote("authors_change_pct", "contributors")
+    vote("commits_quarters", "commits")
+    vote("prs_quarters", "merged PRs")
+    vote("packages_change_pct", "new packages")
+    vote("hn_quarters", "HN mentions")
+    close = m.get("issue_close_ratio")
+    ratio = close["value"] if close else None
+    if ratio is not None:
+        if ratio >= 1.0:
+            votes.append("up"); reasons.append(f"issues closing at {ratio}x")
+        elif ratio < 0.7:
+            votes.append("down"); reasons.append(f"issues closing at {ratio}x")
+        else:
+            votes.append("flat"); reasons.append("issue close rate keeping up")
+    if not votes:
+        return missing("not measured: no trend signals")
+    up, down = votes.count("up"), votes.count("down")
+    if up and down:
+        direction, n = "mixed", 0
+    elif up and not down:
+        direction, n = "up", up
+    elif down and not up:
+        direction, n = "down", down
+    else:
+        direction, n = "flat", votes.count("flat")
+    return ok({"up": 1, "flat": 0, "down": -1, "mixed": 0}.get(direction, 0), None, "; ".join(reasons), display=direction)
+
+
+# ---------- History ----------
+
+def load_history() -> list[dict[str, JSON]]:
+    rows: list[dict[str, JSON]] = []
+    if HISTORY.exists():
+        for line in HISTORY.read_text().splitlines():
+            if line.strip():
+                rows.append(json.loads(line))
+    rows.extend(history_from_git([r.get("date") for r in rows if r.get("date")]))
+    rows.sort(key=lambda r: str(r.get("date") or r.get("generated_at") or ""))
+    return rows
+
+
+def history_from_git(have: list[object]) -> list[dict[str, JSON]]:
+    git = ROOT / ".git"
+    if not git.exists():
+        return []
+    try:
+        log = subprocess.run(["git", "log", "--format=%H %cI", "--", "docs/data.json"], cwd=ROOT, capture_output=True, text=True, timeout=30)
+    except Exception:
+        return []
+    out: list[dict[str, JSON]] = []
+    seen = {str(d)[:10] for d in have}
+    for line in log.stdout.splitlines():
+        parts = line.split(maxsplit=1)
+        if len(parts) != 2:
+            continue
+        sha, when = parts
+        day = when[:10]
+        if day in seen:
+            continue
+        try:
+            raw = subprocess.run(["git", "show", f"{sha}:docs/data.json"], cwd=ROOT, capture_output=True, text=True, timeout=30)
+            if raw.returncode != 0 or not raw.stdout.strip():
+                continue
+            data = json.loads(raw.stdout)
+        except Exception:
+            continue
+        langs = {item["name"]: compact_history_lang(item) for item in data.get("languages", [])}
+        out.append({"date": day, "generated_at": data.get("generated_at", when), "source": f"git:{sha[:12]}", "languages": langs})
+        seen.add(day)
+    return out
+
+
+def compact_history_lang(item: dict[str, JSON]) -> dict[str, JSON]:
+    metrics = item.get("metrics") or {}
+    keep = {}
+    for key, val in metrics.items():
+        if not isinstance(val, dict):
+            continue
+        entry = {k: val[k] for k in ("value", "display", "note", "source", "series", "values") if k in val}
+        if entry:
+            keep[key] = entry
+    return keep
+
+
+def append_history(results: list[Result]) -> None:
+    day = NOW.date().isoformat()
+    row: dict[str, JSON] = {"date": day, "generated_at": NOW.isoformat(), "languages": {r["name"]: compact_history_lang(dict(r)) for r in results}}
+    existing = [r for r in (load_history_file_only()) if r.get("date") != day]
+    existing.append(row)
+    existing.sort(key=lambda r: str(r.get("date") or ""))
+    HISTORY.write_text("".join(json.dumps(r, default=str) + "\n" for r in existing))
+
+
+def load_history_file_only() -> list[dict[str, JSON]]:
+    if not HISTORY.exists():
+        return []
+    return [json.loads(line) for line in HISTORY.read_text().splitlines() if line.strip()]
+
+
+def gh_search_count(path: str, q: str) -> int:
+    d = gh(path, {"q": q, "per_page": 1})
+    return int(d["total_count"])
+
+
+
 # ---------- Page ----------
 
-def render(results: list[Result]) -> str:
+def render(results: list[Result], history: list[dict[str, JSON]] | None = None) -> str:
     stamp = NOW.strftime("%Y-%m-%d %H:%M UTC")
     return TEMPLATE.format(
         stamp=stamp,
         summary=summary_table(results),
+        trajectory=trajectory_section(results),
         details="\n".join(detail(r) for r in results),
         thresholds=thresholds_table(),
         gh=GITHUB_LINK,
@@ -1056,9 +1690,13 @@ def summary_table(results: list[Result]) -> str:
     rows = []
     for r in results:
         cells = "".join(f'<td data-v="{r["categories"][c] or -1}">{stars(r["categories"][c])}</td>' for c in CATEGORIES)
+        mark, cls, dv = direction_cell(r)
         rows.append(f'<tr><td data-v="{esc(r["name"])}"><a href="#{slug(r["name"])}">{esc(r["name"])}</a></td>'
-                    f'<td data-v="{r["overall"] or -1}">{stars(r["overall"])}</td>{cells}</tr>')
-    return (f'<table class="sortable"><thead><tr><th data-type="text" aria-sort="none">Language</th><th data-type="num" aria-sort="descending">Overall</th>{head}</tr></thead>'
+                    f'<td data-v="{r["overall"] or -1}">{stars(r["overall"])}</td>'
+                    f'<td data-v="{dv}"><span class="{cls}">{esc(mark)}</span></td>{cells}</tr>')
+    return (f'<table class="sortable"><thead><tr><th data-type="text" aria-sort="none">Language</th>'
+            f'<th data-type="num" aria-sort="descending">Overall</th>'
+            f'<th data-type="num" aria-sort="none">Trajectory</th>{head}</tr></thead>'
             f'<tbody>{"".join(rows)}</tbody></table>')
 
 
@@ -1072,7 +1710,121 @@ def detail(r: Result) -> str:
     canon = r["config"].get("_canonical")
     repo = f'<a href="{canon["web"]}">{canon["host"]}:{canon["repo"]}</a>' if canon else '<span class="nm">none</span>'
     return (f'<section class="lang" id="{slug(r["name"])}"><h2>{esc(r["name"])} <span class="dim">overall</span> {stars(r["overall"])}</h2>'
-            f'<p><span class="dim">Main repo</span> {repo}</p>{"".join(sections)}</section>')
+            f'<p><span class="dim">Main repo</span> {repo}</p>{governance_block(r)}{"".join(sections)}</section>')
+
+
+
+def direction_cell(r: Result) -> tuple[str, str, float]:
+    m = r["metrics"].get("trajectory")
+    if not m or m.get("display") in (None, ""):
+        return "not measured", "nm", -9
+    label = str(m["display"])
+    pretty = {"up": "up", "down": "down", "flat": "steady", "mixed": "mixed"}.get(label, label)
+    cls = {"up": "dir-up", "down": "dir-down", "flat": "dir-flat", "mixed": "dir-mixed"}.get(label, "nm")
+    return pretty, cls, float(m["value"] or 0)
+
+
+def sparkline(values: list[float | None], width: int = 84, height: int = 24) -> str:
+    pts = [(i, v) for i, v in enumerate(values) if v is not None]
+    if len(pts) < 2:
+        return ""
+    lo, hi = min(v for _, v in pts), max(v for _, v in pts)
+    span = (hi - lo) or 1
+    n = max(len(values) - 1, 1)
+    coords = []
+    for i, v in pts:
+        x = i * (width - 2) / n + 1
+        y = height - 2 - (v - lo) / span * (height - 4)
+        coords.append(f"{x:.1f},{y:.1f}")
+    return (f'<svg class="spark" width="{width}" height="{height}" viewBox="0 0 {width} {height}" aria-hidden="true">'
+            f'<polyline points="{" ".join(coords)}"/></svg>')
+
+
+def trajectory_section(results: list[Result]) -> str:
+    rows = []
+    for r in results:
+        m = r["metrics"]
+        mark, cls, dv = direction_cell(r)
+        rows.append(
+            f'<tr><td data-v="{esc(r["name"])}"><a href="#{slug(r["name"])}">{esc(r["name"])}</a></td>'
+            f'<td data-v="{dv}"><span class="{cls}">{esc(mark)}</span></td>'
+            f'{traj_cell(m, "authors_change_pct")}'
+            f'{traj_cell(m, "commits_quarters", spark=True)}'
+            f'{traj_cell(m, "prs_quarters", spark=True)}'
+            f'{traj_cell(m, "releases_per_year")}'
+            f'{traj_cell(m, "issue_close_ratio")}'
+            f'{traj_cell(m, "packages_change_pct")}'
+            f'{traj_cell(m, "hn_quarters", spark=True)}</tr>'
+        )
+    table = (
+        '<table class="sortable"><thead><tr>'
+        '<th data-type="text" aria-sort="none">Language</th>'
+        '<th data-type="num" aria-sort="none">Direction</th>'
+        '<th data-type="num" aria-sort="none">Contributors, 12m vs prior 12m</th>'
+        '<th data-type="num" aria-sort="none">Commits by quarter</th>'
+        '<th data-type="num" aria-sort="none">Merged PRs by quarter</th>'
+        '<th data-type="num" aria-sort="none">Stable releases / year</th>'
+        '<th data-type="num" aria-sort="none">Issue close ratio, 12m</th>'
+        '<th data-type="num" aria-sort="none">New packages, 12m vs prior</th>'
+        '<th data-type="num" aria-sort="none">HN stories by quarter</th>'
+        f'</tr></thead><tbody>{"".join(rows)}</tbody></table>'
+    )
+    method = (
+        '<p class="method dim">Trajectory measures change over time and is not part of the overall score. '
+        "Direction summarizes contributor counts, commit and merged-PR volume (recent four quarters vs the four before), "
+        "new packages where a registry API exists, Hacker News story mentions, and the trailing 12-month issue close ratio "
+        "(issues closed vs opened). A signal counts as up or down when it moves by at least 15%, or when the close ratio "
+        "is at least 1.0 or below 0.7; otherwise it is treated as steady. Mixed means the signals disagree. "
+        "The current quarter is partial. Completed-quarter counts are reused from docs/history.jsonl on later runs. "
+        "Reddit and forum history is not available from those APIs for a two-year window; later weekly snapshots will fill that gap. "
+        "Package growth is included only when a public API provides first-seen dates. "
+        "Hacker News counts come from the Algolia HN Search API (story posts) using the query in languages.toml. "
+        "Governance facts below each language are manual and sourced; they are not scored.</p>"
+        "<p class=\"method dim\">Aspects considered: whether the contributor base is growing or shrinking, whether commits and "
+        "merged work are accelerating, whether releases arrive on a regular cadence, whether issues are being closed as fast as they open, "
+        "whether the package ecosystem is adding new packages, and whether public discussion on Hacker News is rising or falling.</p>"
+    )
+    return f'<section class="traj"><h2>Trajectory</h2>{method}{table}</section>'
+
+
+def traj_cell(metrics: Metrics, key: str, spark: bool = False) -> str:
+    m = metrics.get(key)
+    if not m or m["value"] is None:
+        note = (m["note"] if m else None) or ""
+        label = "n/a" if note.startswith("none") else "not measured"
+        return f'<td data-v="-999"><span class="nm">{label}</span></td>'
+    shown = m.get("display") or (f"{m['value']:+.0f}%" if key.endswith("_pct") else str(m["value"]))
+    svg = sparkline(list(m.get("values") or [])) if spark else ""
+    src = f' <a class="src" href="{esc(m["source"])}">source</a>' if m.get("source") else ""
+    return f'<td data-v="{m["value"]}">{svg} {esc(shown)}{src}</td>'
+
+
+def governance_block(r: Result) -> str:
+    g = (r["config"].get("governance") or None)
+    if not g:
+        return ""
+    items: list[str] = []
+    body = esc(g["body"]) if g.get("body") else "not listed"
+    if g.get("body_url"):
+        body = f'<a href="{esc(g["body_url"])}">{body if g.get("body") else esc(g["body_url"])}</a>'
+    items.append(f"<li><span class=\"dim\">Steering body</span> {body}</li>")
+    if g.get("roadmap"):
+        updated = f' (page dated {esc(g["roadmap_updated"])})' if g.get("roadmap_updated") else ""
+        items.append(f'<li><span class="dim">Roadmap</span> <a href="{esc(g["roadmap"])}">{esc(g["roadmap"])}</a>{updated}</li>')
+    if g.get("rfc_url"):
+        items.append(f'<li><span class="dim">RFC / proposal process</span> <a href="{esc(g["rfc_url"])}">{esc(g["rfc_url"])}</a></li>')
+    if g.get("funding") or g.get("funding_url"):
+        fund = esc(g["funding"]) if g.get("funding") else "listed"
+        if g.get("funding_url"):
+            fund = f'<a href="{esc(g["funding_url"])}">{fund}</a>'
+        items.append(f'<li><span class="dim">Funding</span> {fund}</li>')
+    if g.get("notes"):
+        items.append(f'<li><span class="dim">Notes</span> {esc(g["notes"])}</li>')
+    sources = g.get("sources") or []
+    if sources:
+        links = ", ".join(f'<a href="{esc(u)}">{esc(u)}</a>' for u in sources)
+        items.append(f'<li><span class="dim">Sources</span> {links}</li>')
+    return f'<h3>Governance</h3><ul>{"".join(items)}</ul>'
 
 
 def metric_row(key: str, m: Metric) -> str:
@@ -1148,10 +1900,15 @@ header {{ display:flex; justify-content:space-between; align-items:center; gap:1
 footer {{ border-top:1px solid var(--line); margin-top:2.5rem; padding-top:1rem; display:flex; justify-content:space-between; align-items:center; }}
 .score {{ display:inline-block; min-width:2.2em; text-align:center; border-radius:4px; padding:0 .3em; font-weight:600; color:#1d2024; }}
 .s5 {{ background:#7fc98f; }} .s4 {{ background:#b5d37a; }} .s3 {{ background:#e3cf6e; }} .s2 {{ background:#e6a065; }} .s1 {{ background:#de7b72; }}
+.dir-up {{ color:#7fc98f; }} .dir-down {{ color:#de7b72; }} .dir-flat {{ color:#e3cf6e; }} .dir-mixed {{ color:#8fb8de; }}
+svg.spark {{ vertical-align:middle; overflow:visible; }}
+svg.spark polyline {{ fill:none; stroke:var(--accent); stroke-width:1.5; }}
+.traj p.method {{ max-width:70rem; }}
 </style></head><body>
 <header><h1>Programming language evaluation</h1>{gh}</header>
-<p><span class="dim">Generated at</span> {stamp} <span class="dim">from live API calls. Click a column to sort. Category scores average the measured metrics; overall averages the categories. Metrics that could not be fetched say so and are left out of the averages.</span></p>
+<p><span class="dim">Generated at</span> {stamp} <span class="dim">from live API calls. Click a column to sort. Category scores average the measured metrics; overall averages the categories. The Trajectory column is a separate change-over-time indicator and is not folded into overall. Metrics that could not be fetched say so and are left out of the averages.</span></p>
 {summary}
+{trajectory}
 {details}
 <h2>Scoring thresholds</h2>
 <p class="dim">Each metric maps to a 1 to 5 score using these cut points.</p>

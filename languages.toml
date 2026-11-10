@@ -1,6 +1,8 @@
 # Add a language by copying a block. Every field except name is optional.
 # repos: candidate homes of the main compiler; the most recently active one is treated as canonical.
 # forum.kind: "discourse" or "nimforum".
+# packages.kind: "hex". governance fields are manual and must be sourced.
+# hn_query: Algolia HN story search used for mention trends.
 
 [[language]]
 name = "Crystal"
@@ -20,6 +22,8 @@ lsp = { name = "Crystalline", repo = "elbywan/crystalline" }
 lsp_rating = 2
 lsp_notes = "Stable Zed plugin is not full featured; the development one needs careful installation and is buggy."
 
+hn_query = "Crystal programming OR Crystal-lang OR \"Crystal language\""
+
 [[language]]
 name = "Nim"
 repos = [{ host = "github", repo = "nim-lang/Nim" }]
@@ -33,6 +37,9 @@ vscode = ["NimLang.nimlang", "kosz78.nim"]
 openvsx = ["nimlang.nimlang", "nimsaem.nimvscode"]
 lsp = { name = "nimlangserver", repo = "nim-lang/langserver" }
 
+hn_query = "Nim language OR Nim programming OR nim-lang"
+governance = { rfc_url = "https://github.com/nim-lang/RFCs", sources = ["https://github.com/nim-lang/RFCs"] }
+
 [[language]]
 name = "Elm"
 repos = [{ host = "github", repo = "elm/compiler" }]
@@ -45,6 +52,8 @@ vscode = ["Elmtooling.elm-ls-vscode"]
 openvsx = ["Elmtooling.elm-ls-vscode"]
 lsp = { name = "elm-language-server", repo = "elm-tooling/elm-language-server" }
 
+hn_query = "Elm language OR Elm programming OR elm-lang"
+
 [[language]]
 name = "Roc"
 repos = [{ host = "github", repo = "roc-lang/roc" }]
@@ -55,6 +64,9 @@ vscode = ["IvanDemchenko.roc-lang-unofficial"]
 openvsx = ["IvanDemchenko.roc-lang-unofficial"]
 lsp = { name = "roc language server (in compiler repo)", repo = "roc-lang/roc" }
 subreddit = "roc_lang"
+
+hn_query = "Roc-lang OR \"Roc language\" OR \"Roc programming\""
+governance = { rfc_url = "https://github.com/roc-lang/rfcs", sources = ["https://github.com/roc-lang/rfcs"] }
 
 [[language]]
 name = "Elixir"
@@ -69,6 +81,9 @@ vscode = ["JakeBecker.elixir-ls", "lexical-lsp.lexical"]
 openvsx = ["elixir-lsp.elixir-ls", "lexical-lsp.lexical"]
 lsp = { name = "Expert", repo = "elixir-lang/expert" }
 
+hn_query = "Elixir"
+packages = { kind = "hex" }
+
 [[language]]
 name = "Gleam"
 repos = [{ host = "github", repo = "gleam-lang/gleam" }]
@@ -81,6 +96,8 @@ zed = ["gleam"]
 vscode = ["Gleam.gleam"]
 openvsx = ["Gleam.gleam"]
 lsp = { name = "gleam lsp (in compiler repo)", repo = "gleam-lang/gleam" }
+
+hn_query = "Gleam language OR Gleam programming OR gleam-lang"
 
 [[language]]
 name = "Zig"
@@ -97,6 +114,9 @@ vscode = ["ziglang.vscode-zig"]
 openvsx = ["ziglang.vscode-zig"]
 lsp = { name = "ZLS", repo = "zigtools/zls" }
 
+hn_query = "Zig language OR Zig programming OR ziglang"
+governance = { body = "Zig Software Foundation", body_url = "https://ziglang.org/zsf/", funding = "Zig Software Foundation", funding_url = "https://ziglang.org/zsf/", sources = ["https://ziglang.org/zsf/"] }
+
 [[language]]
 name = "OCaml"
 repos = [{ host = "github", repo = "ocaml/ocaml" }]
@@ -108,3 +128,21 @@ zed = ["ocaml"]
 vscode = ["ocamllabs.ocaml-platform"]
 openvsx = ["ocamllabs.ocaml-platform"]
 lsp = { name = "ocaml-lsp", repo = "ocaml/ocaml-lsp" }
+hn_query = "OCaml"
+governance = { body = "OCaml Software Foundation", body_url = "https://ocaml-sf.org/", rfc_url = "https://github.com/ocaml/RFCs", sources = ["https://ocaml-sf.org/", "https://github.com/ocaml/RFCs"] }
+
+[[language]]
+name = "Haskell"
+repos = [
+  { host = "gitlab", repo = "ghc/ghc", api = "https://gitlab.haskell.org/api/v4" },
+  { host = "github", repo = "ghc/ghc" },
+]
+subreddit = "haskell"
+forum = { kind = "discourse", url = "https://discourse.haskell.org" }
+other_platforms = ["IRC", "Matrix"]
+zed = ["haskell"]
+vscode = ["haskell.haskell"]
+openvsx = ["haskell.haskell"]
+lsp = { name = "HLS", repo = "haskell/haskell-language-server" }
+hn_query = "Haskell"
+governance = { body = "Haskell Foundation; GHC Steering Committee; haskell.org committee", body_url = "https://haskell.foundation/", roadmap = "https://gitlab.haskell.org/ghc/ghc/-/wikis/status", rfc_url = "https://github.com/ghc-proposals/ghc-proposals", funding = "Haskell Foundation membership; donations to haskell.org", funding_url = "https://www.haskell.org/donations/", notes = "The Haskell Foundation board is active as of 2026. Its executive director left in June 2026 and the Foundation said it will remain without an ED for the foreseeable future, moving technical direction to a Technical Leadership Committee launched 2026-10-13. haskell.org also lists a GHC Steering Committee. The linked roadmap is the GHC release-status wiki cited by the official GHC blog, not a language-wide vision document. GHCup is listed as an official installer on haskell.org; its source repository is on Codeberg.", sources = ["https://haskell.foundation/who-we-are/", "https://discourse.haskell.org/t/haskell-foundation-2026-update/14136", "https://haskell.foundation/news/2026-10-13/technical-leadership-committee-launch.html", "https://www.haskell.org/community/", "https://github.com/ghc-proposals/ghc-proposals", "https://www.haskell.org/donations/", "https://www.haskell.org/ghcup/", "https://codeberg.org/haskell/ghcup-hs", "https://ghc.gitlab.haskell.org/homepage/blog/20260918-ghc-10.0.1-alpha1-released.html"] }
