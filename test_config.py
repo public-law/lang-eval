@@ -1,7 +1,7 @@
 import unittest
 from pathlib import Path
 
-from lang_eval import CONFIG, ConfigError, load_config, is_prerelease_tag, sparkline, trajectory_direction, ok, missing
+from lang_eval import CONFIG, ConfigError, load_config, is_prerelease_tag, sparkline, trajectory_direction, ok, missing, hn_queries
 
 GOOD = """
 [[language]]
@@ -73,6 +73,11 @@ subreddit = 12
     def test_rating_rejects_bool_and_zero(self) -> None:
         self.assertEqual(len(problems('[[language]]\nname = "A"\nlsp_rating = true\n')), 1)
         self.assertEqual(len(problems('[[language]]\nname = "A"\nlsp_rating = 0\n')), 1)
+
+    def test_hn_queries_split_or(self) -> None:
+        self.assertEqual(hn_queries('Zig language OR ziglang'), ("Zig language", "ziglang"))
+        self.assertEqual(hn_queries('OCaml'), ("OCaml",))
+        self.assertEqual(hn_queries('Roc-lang OR "Roc language"'), ("Roc-lang", "Roc language"))
 
     def test_unknown_governance_and_package_kind(self) -> None:
         found = problems("""

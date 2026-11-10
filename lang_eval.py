@@ -1529,9 +1529,18 @@ def hn_trend(lang: Language, cached: dict[str, dict[str, int]]) -> Metrics:
     series: dict[str, int] = dict(cached.get("hn_quarters") or {})
     for label, start, end in recent_quarters():
         if label not in series:
-            series[label] = hn_count(query, start, end)
-    src = "https://hn.algolia.com/?q=" + urllib.parse.quote(query)
+            series[label] = hn_count_best(query, start, end)
+    src = "https://hn.algolia.com/?q=" + urllib.parse.quote(hn_queries(query)[0])
     return {"hn_quarters": series_metric(series, src, f"Algolia HN story search: {query}")}
+
+
+def hn_queries(query: str) -> tuple[str, ...]:
+    parts = [p.strip().strip("\"").strip("'").strip() for p in re.split(r"\s+OR\s+", query, flags=re.I)]
+    return tuple(p for p in parts if p) or (query,)
+
+
+def hn_count_best(query: str, start: datetime, end: datetime) -> int:
+    return max(hn_count(q, start, end) for q in hn_queries(query))
 
 
 def hn_count(query: str, start: datetime, end: datetime) -> int:
