@@ -96,3 +96,15 @@ zed = ["zig"]
 vscode = ["ziglang.vscode-zig"]
 openvsx = ["ziglang.vscode-zig"]
 lsp = { name = "ZLS", repo = "zigtools/zls" }
+
+[[language]]
+name = "OCaml"
+repos = [{ host = "github", repo = "ocaml/ocaml" }]
+subreddit = "ocaml"
+forum = { kind = "discourse", url = "https://discuss.ocaml.org" }
+discord_invite = "cCYQbqN"
+other_platforms = ["IRC", "Zulip", "Matrix"]
+zed = ["ocaml"]
+vscode = ["ocamllabs.ocaml-platform"]
+openvsx = ["ocamllabs.ocaml-platform"]
+lsp = { name = "ocaml-lsp", repo = "ocaml/ocaml-lsp" }
