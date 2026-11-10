@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-11-10T05:54:55.032433+00:00",
+ "generated_at": "2026-11-10T07:50:47.289588+00:00",
  "languages": [
   {
    "name": "Zig",
@@ -9,42 +9,42 @@
      "source": "https://codeberg.org/ziglang/zig/commits",
      "note": "canonical repo detected as codeberg:ziglang/zig",
      "display": "1 (2026-11-09)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "commits_90d": {
      "value": 1703,
      "source": "https://codeberg.org/ziglang/zig/commits",
      "note": null,
      "display": null,
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "authors_90d": {
      "value": 131,
      "source": "https://codeberg.org/ziglang/zig/commits",
      "note": null,
      "display": null,
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "authors_12m": {
      "value": 226,
      "source": "https://codeberg.org/ziglang/zig/commits",
      "note": null,
      "display": null,
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "top_share_12m": {
      "value": 29.3,
      "source": "https://codeberg.org/ziglang/zig/commits",
      "note": null,
      "display": "29.3% (alexrp, 880 of 3000)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "days_since_release": {
      "value": 7,
      "source": "https://codeberg.org/ziglang/zig/tags",
      "note": "from latest tag; releases disabled or empty",
      "display": "7 (0.17.1, 2026-11-02)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "mergers_90d": {
      "value": null,
@@ -56,42 +56,42 @@
      "source": "https://codeberg.org/ziglang/zig/pulls",
      "note": "Forgejo has no author association; outside means not a public member of the owning org",
      "display": null,
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "outside_accept_90d": {
      "value": 81.6,
      "source": "https://codeberg.org/ziglang/zig/pulls",
      "note": "Forgejo has no author association; outside means not a public member of the owning org",
      "display": null,
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "outside_open": {
-     "value": 345,
+     "value": 346,
      "source": "https://codeberg.org/ziglang/zig/pulls",
      "note": "Forgejo has no author association; outside means not a public member of the owning org",
      "display": null,
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "reddit_per_week": {
      "value": 12.0,
      "source": "https://www.reddit.com/r/Zig/new/",
      "note": "48 posts in last 28 days",
      "display": null,
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "forum_posts_7d": {
-     "value": 370,
+     "value": 368,
      "source": "https://ziggit.dev",
      "note": null,
-     "display": "370 (1667 in 30d)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "display": "368 (1667 in 30d)",
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "forum_topics_7d": {
-     "value": 32,
+     "value": 31,
      "source": "https://ziggit.dev",
      "note": null,
-     "display": "32 (153 in 30d)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "display": "31 (152 in 30d)",
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "discussions_30d": {
      "value": null,
@@ -99,25 +99,25 @@
      "note": "none configured"
     },
     "discord_members": {
-     "value": 21357,
+     "value": 21359,
      "source": "https://discord.gg/zig",
      "note": "server: Zig Programming Language",
      "display": null,
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "discord_online": {
-     "value": 3544,
+     "value": 3552,
      "source": "https://discord.gg/zig",
      "note": "server: Zig Programming Language",
      "display": null,
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "platforms": {
      "value": 8,
      "source": null,
      "note": "counted from languages.toml",
      "display": "8 (Reddit, Forum, Discord, IRC, Zulip, Matrix, Telegram, Slack)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "x_activity": {
      "value": null,
@@ -129,68 +129,218 @@
      "source": "https://zed.dev/extensions?query=zig",
      "note": "zig v0.4.2 252d; repo https://github.com/zed-extensions/zig",
      "display": "252 (stale, over 90 days) (zig v0.4.2)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "zed_downloads": {
-     "value": 229830,
+     "value": 229848,
      "source": "https://zed.dev/extensions?query=zig",
      "note": null,
      "display": null,
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "vscode_days": {
      "value": 16,
      "source": "https://marketplace.visualstudio.com/items?itemName=ziglang.vscode-zig",
      "note": "ziglang.vscode-zig: 16d, 263541 installs",
      "display": "16 (ziglang.vscode-zig)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "vscode_installs": {
      "value": 263541,
      "source": "https://marketplace.visualstudio.com/items?itemName=ziglang.vscode-zig",
      "note": null,
      "display": "263,541 (ziglang.vscode-zig)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "vscode_rating": {
      "value": 5.0,
      "source": "https://marketplace.visualstudio.com/items?itemName=ziglang.vscode-zig",
      "note": null,
      "display": "5.0 (14 ratings)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "openvsx_days": {
      "value": 16,
      "source": "https://open-vsx.org/extension/ziglang/vscode-zig",
      "note": null,
      "display": "16 (ziglang.vscode-zig)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "openvsx_downloads": {
-     "value": 105907,
+     "value": 105915,
      "source": "https://open-vsx.org/extension/ziglang/vscode-zig",
      "note": null,
      "display": null,
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "lsp_days": {
      "value": 1,
      "source": "https://github.com/zigtools/zls/commits",
      "note": "ZLS",
      "display": "1 (2026-11-08)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "lsp_commits_90d": {
      "value": 106,
      "source": "https://github.com/zigtools/zls/commits",
      "note": "ZLS",
      "display": null,
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "lsp_rating": {
      "value": null,
      "source": null,
      "note": "not rated (manual field in languages.toml)"
+    },
+    "authors_prior_12m": {
+     "value": 0,
+     "source": "https://codeberg.org/ziglang/zig/-/commits",
+     "note": null,
+     "display": "0 (vs 171 in last 12 months)",
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "authors_change_pct": {
+     "value": 100.0,
+     "source": "https://codeberg.org/ziglang/zig/-/commits",
+     "note": null,
+     "display": "+100%",
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "authors_retained_pct": {
+     "value": null,
+     "source": "https://codeberg.org/ziglang/zig/-/commits",
+     "note": "not measured: no authors in prior 12 months"
+    },
+    "commits_quarters": {
+     "value": 100.0,
+     "source": "https://codeberg.org/ziglang/zig/-/commits",
+     "note": null,
+     "display": "0 0 0 0 0 0 963 1037 (+100% recent 4q vs prior 4q)",
+     "series": {
+      "2025Q1": 0,
+      "2025Q2": 0,
+      "2025Q3": 0,
+      "2025Q4": 0,
+      "2026Q1": 0,
+      "2026Q2": 0,
+      "2026Q3": 963,
+      "2026Q4": 1037
+     },
+     "values": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      963,
+      1037
+     ],
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "prs_quarters": {
+     "value": 80600.0,
+     "source": "https://codeberg.org/ziglang/zig/pulls",
+     "note": null,
+     "display": "0 0 0 1 17 160 385 245 (+80600% recent 4q vs prior 4q)",
+     "series": {
+      "2025Q1": 0,
+      "2025Q2": 0,
+      "2025Q3": 0,
+      "2025Q4": 1,
+      "2026Q1": 17,
+      "2026Q2": 160,
+      "2026Q3": 385,
+      "2026Q4": 245
+     },
+     "values": [
+      0,
+      0,
+      0,
+      1,
+      17,
+      160,
+      385,
+      245
+     ],
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "releases_per_year": {
+     "value": 3.91,
+     "source": "https://codeberg.org/ziglang/zig/-/tags",
+     "note": null,
+     "display": "3.91 (10 stable releases in 934 days)",
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "release_gap_days": {
+     "value": 102.4,
+     "source": "https://codeberg.org/ziglang/zig/-/tags",
+     "note": null,
+     "display": "102 days mean interval (0-270)",
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "issues_opened_12m": {
+     "value": null,
+     "source": null,
+     "note": "not measured: HTTP Error 422: Unprocessable Content"
+    },
+    "issues_closed_12m": {
+     "value": null,
+     "source": null,
+     "note": "not measured: HTTP Error 422: Unprocessable Content"
+    },
+    "issue_close_ratio": {
+     "value": null,
+     "source": null,
+     "note": "not measured: HTTP Error 422: Unprocessable Content"
+    },
+    "packages_last_12m": {
+     "value": null,
+     "source": null,
+     "note": "none configured"
+    },
+    "packages_prior_12m": {
+     "value": null,
+     "source": null,
+     "note": "none configured"
+    },
+    "packages_change_pct": {
+     "value": null,
+     "source": null,
+     "note": "none configured"
+    },
+    "hn_quarters": {
+     "value": null,
+     "source": "https://hn.algolia.com/?q=Zig%20language%20OR%20Zig%20programming%20OR%20ziglang",
+     "note": "Algolia HN story search: Zig language OR Zig programming OR ziglang",
+     "display": "0 0 0 0 0 0 0 0",
+     "series": {
+      "2025Q1": 0,
+      "2025Q2": 0,
+      "2025Q3": 0,
+      "2025Q4": 0,
+      "2026Q1": 0,
+      "2026Q2": 0,
+      "2026Q3": 0,
+      "2026Q4": 0
+     },
+     "values": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "trajectory": {
+     "value": 1,
+     "source": null,
+     "note": "contributors +100%; commits +100%; merged PRs +80600%",
+     "display": "up",
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     }
    },
    "config": {
@@ -231,11 +381,21 @@
      "name": "ZLS",
      "repo": "zigtools/zls"
     },
+    "hn_query": "Zig language OR Zig programming OR ziglang",
+    "governance": {
+     "body": "Zig Software Foundation",
+     "body_url": "https://ziglang.org/zsf/",
+     "funding": "Zig Software Foundation",
+     "funding_url": "https://ziglang.org/zsf/",
+     "sources": [
+      "https://ziglang.org/zsf/"
+     ]
+    },
     "_canonical": {
      "host": "codeberg",
      "repo": "ziglang/zig",
      "mirror": false,
-     "pushed": "2026-11-10T01:39:13+01:00",
+     "pushed": "2026-11-10T08:17:29+01:00",
      "web": "https://codeberg.org/ziglang/zig"
     }
    },
@@ -254,91 +414,91 @@
      "source": "https://github.com/elixir-lang/elixir/commits",
      "note": null,
      "display": "0 (2026-11-09)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "commits_90d": {
      "value": 404,
      "source": "https://github.com/elixir-lang/elixir/commits",
      "note": null,
      "display": null,
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "authors_90d": {
      "value": 49,
      "source": "https://github.com/elixir-lang/elixir/commits",
      "note": null,
      "display": null,
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "authors_12m": {
      "value": 102,
      "source": "https://github.com/elixir-lang/elixir/commits",
      "note": null,
      "display": null,
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "top_share_12m": {
      "value": 51.9,
      "source": "https://github.com/elixir-lang/elixir/commits",
      "note": null,
      "display": "51.9% (josevalim, 649 of 1250)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "days_since_release": {
      "value": 11,
      "source": "https://github.com/elixir-lang/elixir/releases",
      "note": null,
      "display": "11 (v1.20.5, 2026-10-29)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "mergers_90d": {
      "value": 5,
      "source": "https://github.com/elixir-lang/elixir/pulls",
      "note": null,
      "display": "5 (ericmj, gldubc, josevalim, sabiwara, whatyouhide)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "outside_merged_90d": {
      "value": 204,
      "source": "https://github.com/elixir-lang/elixir/pulls",
      "note": null,
      "display": "204 by 40 people (of 221 merged)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "outside_accept_90d": {
      "value": 89.1,
      "source": "https://github.com/elixir-lang/elixir/pulls",
      "note": null,
      "display": "89% (204 merged, 25 closed unmerged)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "outside_open": {
      "value": 2,
      "source": "https://github.com/elixir-lang/elixir/pulls",
      "note": null,
      "display": "2 (of 2 open)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "reddit_per_week": {
      "value": 13.8,
      "source": "https://www.reddit.com/r/elixir/new/",
      "note": "55 posts in last 28 days",
      "display": null,
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "forum_posts_7d": {
-     "value": 313,
+     "value": 312,
      "source": "https://forum.elixirforum.com",
      "note": null,
-     "display": "313 (1120 in 30d)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "display": "312 (1127 in 30d)",
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "forum_topics_7d": {
      "value": 46,
      "source": "https://forum.elixirforum.com",
      "note": null,
-     "display": "46 (169 in 30d)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "display": "46 (171 in 30d)",
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "discussions_30d": {
      "value": null,
@@ -346,25 +506,25 @@
      "note": "none configured"
     },
     "discord_members": {
-     "value": 19487,
+     "value": 19486,
      "source": "https://discord.gg/elixir",
      "note": "server: Elixir Language",
      "display": null,
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "discord_online": {
-     "value": 1981,
+     "value": 2021,
      "source": "https://discord.gg/elixir",
      "note": "server: Elixir Language",
      "display": null,
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "platforms": {
      "value": 5,
      "source": null,
      "note": "counted from languages.toml",
      "display": "5 (Reddit, Forum, Discord, Slack, X)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "x_activity": {
      "value": null,
@@ -376,68 +536,233 @@
      "source": "https://zed.dev/extensions?query=elixir",
      "note": "elixir v0.7.1 15d; repo https://github.com/zed-extensions/elixir",
      "display": "15 (elixir v0.7.1)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "zed_downloads": {
-     "value": 316637,
+     "value": 316655,
      "source": "https://zed.dev/extensions?query=elixir",
      "note": null,
      "display": null,
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "vscode_days": {
      "value": 152,
      "source": "https://marketplace.visualstudio.com/items?itemName=JakeBecker.elixir-ls",
      "note": "JakeBecker.elixir-ls: 152d, 742716 installs; lexical-lsp.lexical: 358d, 13171 installs",
      "display": "152 (stale, over 90 days) (JakeBecker.elixir-ls)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "vscode_installs": {
      "value": 742716,
      "source": "https://marketplace.visualstudio.com/items?itemName=JakeBecker.elixir-ls",
      "note": null,
      "display": "742,716 (JakeBecker.elixir-ls)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "vscode_rating": {
      "value": 4.33,
      "source": "https://marketplace.visualstudio.com/items?itemName=JakeBecker.elixir-ls",
      "note": null,
      "display": "4.3 (45 ratings)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "openvsx_days": {
      "value": 152,
      "source": "https://open-vsx.org/extension/elixir-lsp/elixir-ls",
      "note": null,
      "display": "152 (stale, over 90 days) (elixir-lsp.elixir-ls)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "openvsx_downloads": {
-     "value": 244808,
+     "value": 244816,
      "source": "https://open-vsx.org/extension/elixir-lsp/elixir-ls",
      "note": null,
      "display": null,
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "lsp_days": {
      "value": 0,
      "source": "https://github.com/elixir-lang/expert/commits",
      "note": "Expert",
      "display": "0 (2026-11-10)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "lsp_commits_90d": {
      "value": 97,
      "source": "https://github.com/elixir-lang/expert/commits",
      "note": "Expert",
      "display": null,
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "lsp_rating": {
      "value": null,
      "source": null,
      "note": "not rated (manual field in languages.toml)"
+    },
+    "authors_prior_12m": {
+     "value": 117,
+     "source": "https://github.com/elixir-lang/elixir/commits",
+     "note": null,
+     "display": "117 (vs 102 in last 12 months)",
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "authors_change_pct": {
+     "value": -12.8,
+     "source": "https://github.com/elixir-lang/elixir/commits",
+     "note": null,
+     "display": "-13%",
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "authors_retained_pct": {
+     "value": 25.6,
+     "source": "https://github.com/elixir-lang/elixir/commits",
+     "note": "30 of 117 prior-year authors also committed this year",
+     "display": "26% (30 of 117)",
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "commits_quarters": {
+     "value": 39.8,
+     "source": "https://github.com/elixir-lang/elixir/commits",
+     "note": null,
+     "display": "207 218 148 249 256 295 358 240 (+40% recent 4q vs prior 4q)",
+     "series": {
+      "2025Q1": 207,
+      "2025Q2": 218,
+      "2025Q3": 148,
+      "2025Q4": 249,
+      "2026Q1": 256,
+      "2026Q2": 295,
+      "2026Q3": 358,
+      "2026Q4": 240
+     },
+     "values": [
+      207,
+      218,
+      148,
+      249,
+      256,
+      295,
+      358,
+      240
+     ],
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "prs_quarters": {
+     "value": 25.7,
+     "source": "https://github.com/elixir-lang/elixir/pulls",
+     "note": null,
+     "display": "125 132 104 117 90 145 285 81 (+26% recent 4q vs prior 4q)",
+     "series": {
+      "2025Q1": 125,
+      "2025Q2": 132,
+      "2025Q3": 104,
+      "2025Q4": 117,
+      "2026Q1": 90,
+      "2026Q2": 145,
+      "2026Q3": 285,
+      "2026Q4": 81
+     },
+     "values": [
+      125,
+      132,
+      104,
+      117,
+      90,
+      145,
+      285,
+      81
+     ],
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "releases_per_year": {
+     "value": 8.67,
+     "source": "https://github.com/elixir-lang/elixir/releases",
+     "note": null,
+     "display": "8.67 (25 stable releases in 1053 days)",
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "release_gap_days": {
+     "value": 42.9,
+     "source": "https://github.com/elixir-lang/elixir/releases",
+     "note": null,
+     "display": "43 days mean interval (4-147)",
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "issues_opened_12m": {
+     "value": 353,
+     "source": "https://github.com/elixir-lang/elixir/issues",
+     "note": null,
+     "display": null,
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "issues_closed_12m": {
+     "value": 360,
+     "source": "https://github.com/elixir-lang/elixir/issues",
+     "note": null,
+     "display": null,
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "issue_close_ratio": {
+     "value": 1.02,
+     "source": "https://github.com/elixir-lang/elixir/issues",
+     "note": null,
+     "display": "1.02 (360 closed / 353 opened)",
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "packages_last_12m": {
+     "value": 4913,
+     "source": "https://hex.pm/packages",
+     "note": "Hex.pm hosts Elixir, Erlang, and Gleam packages; counts are the shared registry",
+     "display": null,
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "packages_prior_12m": {
+     "value": 1883,
+     "source": "https://hex.pm/packages",
+     "note": "Hex.pm hosts Elixir, Erlang, and Gleam packages; counts are the shared registry",
+     "display": null,
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "packages_change_pct": {
+     "value": 160.9,
+     "source": "https://hex.pm/packages",
+     "note": "Hex.pm hosts Elixir, Erlang, and Gleam packages; counts are the shared registry",
+     "display": "+161%",
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "hn_quarters": {
+     "value": -21.1,
+     "source": "https://hn.algolia.com/?q=Elixir",
+     "note": "Algolia HN story search: Elixir",
+     "display": "54 55 67 66 80 53 44 14 (-21% recent 4q vs prior 4q)",
+     "series": {
+      "2025Q1": 54,
+      "2025Q2": 55,
+      "2025Q3": 67,
+      "2025Q4": 66,
+      "2026Q1": 80,
+      "2026Q2": 53,
+      "2026Q3": 44,
+      "2026Q4": 14
+     },
+     "values": [
+      54,
+      55,
+      67,
+      66,
+      80,
+      53,
+      44,
+      14
+     ],
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "trajectory": {
+     "value": 0,
+     "source": null,
+     "note": "contributors steady; commits +40%; merged PRs +26%; new packages +161%; HN mentions -21%; issues closing at 1.02x",
+     "display": "mixed",
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     }
    },
    "config": {
@@ -477,6 +802,10 @@
      "name": "Expert",
      "repo": "elixir-lang/expert"
     },
+    "hn_query": "Elixir",
+    "packages": {
+     "kind": "hex"
+    },
     "_canonical": {
      "host": "github",
      "repo": "elixir-lang/elixir",
@@ -487,10 +816,431 @@
    },
    "categories": {
     "Development": 4.56,
-    "Community": 4.6,
+    "Community": 4.8,
     "Editor support": 4.44
    },
-   "overall": 4.53
+   "overall": 4.6
+  },
+  {
+   "name": "Haskell",
+   "metrics": {
+    "days_since_commit": {
+     "value": 0,
+     "source": "https://gitlab.haskell.org/ghc/ghc/-/commits",
+     "note": "github:ghc/ghc is a mirror; canonical repo detected as gitlab:ghc/ghc",
+     "display": "0 (2026-11-09)",
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "commits_90d": {
+     "value": 268,
+     "source": "https://gitlab.haskell.org/ghc/ghc/-/commits",
+     "note": null,
+     "display": null,
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "authors_90d": {
+     "value": 32,
+     "source": "https://gitlab.haskell.org/ghc/ghc/-/commits",
+     "note": null,
+     "display": null,
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "authors_12m": {
+     "value": 110,
+     "source": "https://gitlab.haskell.org/ghc/ghc/-/commits",
+     "note": null,
+     "display": null,
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "top_share_12m": {
+     "value": 12.9,
+     "source": "https://gitlab.haskell.org/ghc/ghc/-/commits",
+     "note": null,
+     "display": "12.9% (terrorjack@type.dance, 159 of 1237)",
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "days_since_release": {
+     "value": 229,
+     "source": "https://gitlab.haskell.org/ghc/ghc/-/tags",
+     "note": "from latest stable tag; GitLab releases empty or unused",
+     "display": "229 (ghc-9.12.4, 2026-03-26)",
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "mergers_90d": {
+     "value": 4,
+     "source": "https://gitlab.haskell.org/ghc/ghc/-/merge_requests",
+     "note": null,
+     "display": "4 (MangoIV, marge-bot, trac-Saizan, wz1000)",
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "outside_merged_90d": {
+     "value": 15,
+     "source": "https://gitlab.haskell.org/ghc/ghc/-/merge_requests",
+     "note": "GitLab has no author association; outside means not a public member of the owning group",
+     "display": "15 of 15 merged",
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "outside_accept_90d": {
+     "value": 2.6,
+     "source": "https://gitlab.haskell.org/ghc/ghc/-/merge_requests",
+     "note": "GitLab has no author association; outside means not a public member of the owning group",
+     "display": null,
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "outside_open": {
+     "value": 100,
+     "source": "https://gitlab.haskell.org/ghc/ghc/-/merge_requests",
+     "note": "GitLab has no author association; outside means not a public member of the owning group",
+     "display": "100 (of 100 open)",
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "reddit_per_week": {
+     "value": 14.0,
+     "source": "https://www.reddit.com/r/haskell/new/",
+     "note": "56 posts in last 28 days",
+     "display": null,
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "forum_posts_7d": {
+     "value": 385,
+     "source": "https://discourse.haskell.org",
+     "note": null,
+     "display": "385 (804 in 30d)",
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "forum_topics_7d": {
+     "value": 24,
+     "source": "https://discourse.haskell.org",
+     "note": null,
+     "display": "24 (73 in 30d)",
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "discussions_30d": {
+     "value": null,
+     "source": null,
+     "note": "none configured"
+    },
+    "discord_members": {
+     "value": null,
+     "source": null,
+     "note": "none configured"
+    },
+    "discord_online": {
+     "value": null,
+     "source": null,
+     "note": "none configured"
+    },
+    "platforms": {
+     "value": 4,
+     "source": null,
+     "note": "counted from languages.toml",
+     "display": "4 (Reddit, Forum, IRC, Matrix)",
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "x_activity": {
+     "value": null,
+     "source": null,
+     "note": "not measured: no X API credentials in CI; accounts: none listed"
+    },
+    "zed_days": {
+     "value": 109,
+     "source": "https://zed.dev/extensions?query=haskell",
+     "note": "haskell v1.0.1 109d; repo https://github.com/zed-extensions/haskell",
+     "display": "109 (stale, over 90 days) (haskell v1.0.1)",
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "zed_downloads": {
+     "value": 119837,
+     "source": "https://zed.dev/extensions?query=haskell",
+     "note": null,
+     "display": null,
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "vscode_days": {
+     "value": 18,
+     "source": "https://marketplace.visualstudio.com/items?itemName=haskell.haskell",
+     "note": "haskell.haskell: 18d, 888230 installs",
+     "display": "18 (haskell.haskell)",
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "vscode_installs": {
+     "value": 888230,
+     "source": "https://marketplace.visualstudio.com/items?itemName=haskell.haskell",
+     "note": null,
+     "display": "888,230 (haskell.haskell)",
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "vscode_rating": {
+     "value": 4.88,
+     "source": "https://marketplace.visualstudio.com/items?itemName=haskell.haskell",
+     "note": null,
+     "display": "4.9 (26 ratings)",
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "openvsx_days": {
+     "value": 18,
+     "source": "https://open-vsx.org/extension/haskell/haskell",
+     "note": null,
+     "display": "18 (haskell.haskell)",
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "openvsx_downloads": {
+     "value": 228269,
+     "source": "https://open-vsx.org/extension/haskell/haskell",
+     "note": null,
+     "display": null,
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "lsp_days": {
+     "value": 0,
+     "source": "https://github.com/haskell/haskell-language-server/commits",
+     "note": "HLS",
+     "display": "0 (2026-11-09)",
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "lsp_commits_90d": {
+     "value": 64,
+     "source": "https://github.com/haskell/haskell-language-server/commits",
+     "note": "HLS",
+     "display": null,
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "lsp_rating": {
+     "value": null,
+     "source": null,
+     "note": "not rated (manual field in languages.toml)"
+    },
+    "authors_prior_12m": {
+     "value": 100,
+     "source": "https://gitlab.haskell.org/ghc/ghc/-/commits",
+     "note": null,
+     "display": "100 (vs 110 in last 12 months)",
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "authors_change_pct": {
+     "value": 10.0,
+     "source": "https://gitlab.haskell.org/ghc/ghc/-/commits",
+     "note": null,
+     "display": "+10%",
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "authors_retained_pct": {
+     "value": 43.0,
+     "source": "https://gitlab.haskell.org/ghc/ghc/-/commits",
+     "note": "43 of 100 prior-year authors also committed this year",
+     "display": "43% (43 of 100)",
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "commits_quarters": {
+     "value": 5.7,
+     "source": "https://gitlab.haskell.org/ghc/ghc/-/commits",
+     "note": null,
+     "display": "263 191 355 234 359 294 316 133 (+6% recent 4q vs prior 4q)",
+     "series": {
+      "2025Q1": 263,
+      "2025Q2": 191,
+      "2025Q3": 355,
+      "2025Q4": 234,
+      "2026Q1": 359,
+      "2026Q2": 294,
+      "2026Q3": 316,
+      "2026Q4": 133
+     },
+     "values": [
+      263,
+      191,
+      355,
+      234,
+      359,
+      294,
+      316,
+      133
+     ],
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "prs_quarters": {
+     "value": -39.0,
+     "source": "https://gitlab.haskell.org/ghc/ghc/-/merge_requests",
+     "note": null,
+     "display": "34 16 31 24 19 21 14 10 (-39% recent 4q vs prior 4q)",
+     "series": {
+      "2025Q1": 34,
+      "2025Q2": 16,
+      "2025Q3": 31,
+      "2025Q4": 24,
+      "2026Q1": 19,
+      "2026Q2": 21,
+      "2026Q3": 14,
+      "2026Q4": 10
+     },
+     "values": [
+      34,
+      16,
+      31,
+      24,
+      19,
+      21,
+      14,
+      10
+     ],
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "releases_per_year": {
+     "value": 5.29,
+     "source": "https://gitlab.haskell.org/ghc/ghc/-/tags",
+     "note": null,
+     "display": "5.29 (15 stable releases in 1036 days)",
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "release_gap_days": {
+     "value": 57.2,
+     "source": "https://gitlab.haskell.org/ghc/ghc/-/tags",
+     "note": null,
+     "display": "57 days mean interval (7-132)",
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "issues_opened_12m": {
+     "value": 1518,
+     "source": "https://gitlab.haskell.org/ghc/ghc/-/issues",
+     "note": "GitLab counts issues opened in the last 12 months that are now closed, not all closes in the window",
+     "display": null,
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "issues_closed_12m": {
+     "value": 628,
+     "source": "https://gitlab.haskell.org/ghc/ghc/-/issues",
+     "note": "GitLab counts issues opened in the last 12 months that are now closed, not all closes in the window",
+     "display": null,
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "issue_close_ratio": {
+     "value": 0.41,
+     "source": "https://gitlab.haskell.org/ghc/ghc/-/issues",
+     "note": "GitLab counts issues opened in the last 12 months that are now closed, not all closes in the window",
+     "display": "0.41 (628 closed / 1518 opened)",
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "packages_last_12m": {
+     "value": null,
+     "source": null,
+     "note": "none configured"
+    },
+    "packages_prior_12m": {
+     "value": null,
+     "source": null,
+     "note": "none configured"
+    },
+    "packages_change_pct": {
+     "value": null,
+     "source": null,
+     "note": "none configured"
+    },
+    "hn_quarters": {
+     "value": 5.1,
+     "source": "https://hn.algolia.com/?q=Haskell",
+     "note": "Algolia HN story search: Haskell",
+     "display": "51 58 55 72 78 80 66 24 (+5% recent 4q vs prior 4q)",
+     "series": {
+      "2025Q1": 51,
+      "2025Q2": 58,
+      "2025Q3": 55,
+      "2025Q4": 72,
+      "2026Q1": 78,
+      "2026Q2": 80,
+      "2026Q3": 66,
+      "2026Q4": 24
+     },
+     "values": [
+      51,
+      58,
+      55,
+      72,
+      78,
+      80,
+      66,
+      24
+     ],
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "trajectory": {
+     "value": -1,
+     "source": null,
+     "note": "contributors steady; commits steady; merged PRs -39%; HN mentions steady; issues closing at 0.41x",
+     "display": "down",
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    }
+   },
+   "config": {
+    "name": "Haskell",
+    "repos": [
+     {
+      "host": "gitlab",
+      "repo": "ghc/ghc",
+      "api": "https://gitlab.haskell.org/api/v4"
+     },
+     {
+      "host": "github",
+      "repo": "ghc/ghc"
+     }
+    ],
+    "subreddit": "haskell",
+    "forum": {
+     "kind": "discourse",
+     "url": "https://discourse.haskell.org"
+    },
+    "other_platforms": [
+     "IRC",
+     "Matrix"
+    ],
+    "zed": [
+     "haskell"
+    ],
+    "vscode": [
+     "haskell.haskell"
+    ],
+    "openvsx": [
+     "haskell.haskell"
+    ],
+    "lsp": {
+     "name": "HLS",
+     "repo": "haskell/haskell-language-server"
+    },
+    "hn_query": "Haskell",
+    "governance": {
+     "body": "Haskell Foundation; GHC Steering Committee; haskell.org committee",
+     "body_url": "https://haskell.foundation/",
+     "roadmap": "https://gitlab.haskell.org/ghc/ghc/-/wikis/status",
+     "rfc_url": "https://github.com/ghc-proposals/ghc-proposals",
+     "funding": "Haskell Foundation membership; donations to haskell.org",
+     "funding_url": "https://www.haskell.org/donations/",
+     "notes": "The Haskell Foundation board is active as of 2026. Its executive director left in June 2026 and the Foundation said it will remain without an ED for the foreseeable future, moving technical direction to a Technical Leadership Committee launched 2026-10-13. haskell.org also lists a GHC Steering Committee. The linked roadmap is the GHC release-status wiki cited by the official GHC blog, not a language-wide vision document. GHCup is listed as an official installer on haskell.org; its source repository is on Codeberg.",
+     "sources": [
+      "https://haskell.foundation/who-we-are/",
+      "https://discourse.haskell.org/t/haskell-foundation-2026-update/14136",
+      "https://haskell.foundation/news/2026-10-13/technical-leadership-committee-launch.html",
+      "https://www.haskell.org/community/",
+      "https://github.com/ghc-proposals/ghc-proposals",
+      "https://www.haskell.org/donations/",
+      "https://www.haskell.org/ghcup/",
+      "https://codeberg.org/haskell/ghcup-hs",
+      "https://ghc.gitlab.haskell.org/homepage/blog/20260918-ghc-10.0.1-alpha1-released.html"
+     ]
+    },
+    "_canonical": {
+     "host": "gitlab",
+     "repo": "ghc/ghc",
+     "api": "https://gitlab.haskell.org/api/v4",
+     "mirror": false,
+     "pushed": "2026-11-10T07:07:12.083Z",
+     "web": "https://gitlab.haskell.org/ghc/ghc"
+    }
+   },
+   "categories": {
+    "Development": 4.0,
+    "Community": 4.25,
+    "Editor support": 4.78
+   },
+   "overall": 4.34
   },
   {
    "name": "OCaml",
@@ -500,91 +1250,91 @@
      "source": "https://github.com/ocaml/ocaml/commits",
      "note": null,
      "display": "0 (2026-11-09)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "commits_90d": {
-     "value": 368,
+     "value": 366,
      "source": "https://github.com/ocaml/ocaml/commits",
      "note": null,
      "display": null,
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "authors_90d": {
      "value": 47,
      "source": "https://github.com/ocaml/ocaml/commits",
      "note": null,
      "display": null,
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "authors_12m": {
      "value": 110,
      "source": "https://github.com/ocaml/ocaml/commits",
      "note": null,
      "display": null,
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "top_share_12m": {
      "value": 20.6,
      "source": "https://github.com/ocaml/ocaml/commits",
      "note": null,
      "display": "20.6% (gasche, 333 of 1617)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "days_since_release": {
      "value": 3,
      "source": "https://github.com/ocaml/ocaml/releases",
      "note": null,
      "display": "3 (4.14.5, 2026-11-06)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "mergers_90d": {
      "value": 15,
      "source": "https://github.com/ocaml/ocaml/pulls",
      "note": null,
      "display": "15 (MisterDA, NickBarnes, Octachron, OlivierNicole, chambart, damiendoligez, dra27, garrigue, ...)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "outside_merged_90d": {
      "value": 112,
      "source": "https://github.com/ocaml/ocaml/pulls",
      "note": null,
-     "display": "112 by 36 people (of 154 merged)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "display": "112 by 36 people (of 155 merged)",
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "outside_accept_90d": {
      "value": 88.2,
      "source": "https://github.com/ocaml/ocaml/pulls",
      "note": null,
      "display": "88% (112 merged, 15 closed unmerged)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "outside_open": {
      "value": 236,
      "source": "https://github.com/ocaml/ocaml/pulls",
      "note": null,
-     "display": "236 (of 346 open)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "display": "236 (of 345 open)",
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "reddit_per_week": {
      "value": 1.0,
      "source": "https://www.reddit.com/r/ocaml/new/",
      "note": "4 posts in last 28 days",
      "display": null,
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "forum_posts_7d": {
-     "value": 119,
+     "value": 122,
      "source": "https://discuss.ocaml.org",
      "note": null,
-     "display": "119 (261 in 30d)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "display": "122 (264 in 30d)",
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "forum_topics_7d": {
      "value": 12,
      "source": "https://discuss.ocaml.org",
      "note": null,
      "display": "12 (41 in 30d)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "discussions_30d": {
      "value": null,
@@ -596,21 +1346,21 @@
      "source": "https://discord.gg/cCYQbqN",
      "note": "server: OCaml",
      "display": null,
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "discord_online": {
-     "value": 582,
+     "value": 615,
      "source": "https://discord.gg/cCYQbqN",
      "note": "server: OCaml",
      "display": null,
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "platforms": {
      "value": 6,
      "source": null,
      "note": "counted from languages.toml",
      "display": "6 (Reddit, Forum, Discord, IRC, Zulip, Matrix)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "x_activity": {
      "value": null,
@@ -622,68 +1372,227 @@
      "source": "https://zed.dev/extensions?query=ocaml",
      "note": "ocaml v0.4.1 87d; repo https://github.com/zed-extensions/ocaml",
      "display": "87 (ocaml v0.4.1)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "zed_downloads": {
-     "value": 87389,
+     "value": 87398,
      "source": "https://zed.dev/extensions?query=ocaml",
      "note": null,
      "display": null,
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "vscode_days": {
      "value": 51,
      "source": "https://marketplace.visualstudio.com/items?itemName=ocamllabs.ocaml-platform",
      "note": "ocamllabs.ocaml-platform: 51d, 305167 installs",
      "display": "51 (ocamllabs.ocaml-platform)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "vscode_installs": {
      "value": 305167,
      "source": "https://marketplace.visualstudio.com/items?itemName=ocamllabs.ocaml-platform",
      "note": null,
      "display": "305,167 (ocamllabs.ocaml-platform)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "vscode_rating": {
      "value": 4.74,
      "source": "https://marketplace.visualstudio.com/items?itemName=ocamllabs.ocaml-platform",
      "note": null,
      "display": "4.7 (19 ratings)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "openvsx_days": {
      "value": 51,
      "source": "https://open-vsx.org/extension/ocamllabs/ocaml-platform",
      "note": null,
      "display": "51 (ocamllabs.ocaml-platform)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "openvsx_downloads": {
-     "value": 85016,
+     "value": 85018,
      "source": "https://open-vsx.org/extension/ocamllabs/ocaml-platform",
      "note": null,
      "display": null,
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "lsp_days": {
      "value": 5,
      "source": "https://github.com/ocaml/ocaml-lsp/commits",
      "note": "ocaml-lsp",
      "display": "5 (2026-11-04)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "lsp_commits_90d": {
      "value": 121,
      "source": "https://github.com/ocaml/ocaml-lsp/commits",
      "note": "ocaml-lsp",
      "display": null,
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "lsp_rating": {
      "value": null,
      "source": null,
      "note": "not rated (manual field in languages.toml)"
+    },
+    "authors_prior_12m": {
+     "value": 88,
+     "source": "https://github.com/ocaml/ocaml/commits",
+     "note": null,
+     "display": "88 (vs 110 in last 12 months)",
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "authors_change_pct": {
+     "value": 25.0,
+     "source": "https://github.com/ocaml/ocaml/commits",
+     "note": null,
+     "display": "+25%",
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "authors_retained_pct": {
+     "value": 46.6,
+     "source": "https://github.com/ocaml/ocaml/commits",
+     "note": "41 of 88 prior-year authors also committed this year",
+     "display": "47% (41 of 88)",
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "commits_quarters": {
+     "value": -10.9,
+     "source": "https://github.com/ocaml/ocaml/commits",
+     "note": null,
+     "display": "428 494 265 361 512 354 366 148 (-11% recent 4q vs prior 4q)",
+     "series": {
+      "2025Q1": 428,
+      "2025Q2": 494,
+      "2025Q3": 265,
+      "2025Q4": 361,
+      "2026Q1": 512,
+      "2026Q2": 354,
+      "2026Q3": 366,
+      "2026Q4": 148
+     },
+     "values": [
+      428,
+      494,
+      265,
+      361,
+      512,
+      354,
+      366,
+      148
+     ],
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "prs_quarters": {
+     "value": 16.0,
+     "source": "https://github.com/ocaml/ocaml/pulls",
+     "note": null,
+     "display": "126 127 87 97 174 129 138 66 (+16% recent 4q vs prior 4q)",
+     "series": {
+      "2025Q1": 126,
+      "2025Q2": 127,
+      "2025Q3": 87,
+      "2025Q4": 97,
+      "2026Q1": 174,
+      "2026Q2": 129,
+      "2026Q3": 138,
+      "2026Q4": 66
+     },
+     "values": [
+      126,
+      127,
+      87,
+      97,
+      174,
+      129,
+      138,
+      66
+     ],
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "releases_per_year": {
+     "value": 4.1,
+     "source": "https://github.com/ocaml/ocaml/releases",
+     "note": null,
+     "display": "4.1 (12 stable releases in 1068 days)",
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "release_gap_days": {
+     "value": 96.4,
+     "source": "https://github.com/ocaml/ocaml/releases",
+     "note": null,
+     "display": "96 days mean interval (3-274)",
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "issues_opened_12m": {
+     "value": 191,
+     "source": "https://github.com/ocaml/ocaml/issues",
+     "note": null,
+     "display": null,
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "issues_closed_12m": {
+     "value": 169,
+     "source": "https://github.com/ocaml/ocaml/issues",
+     "note": null,
+     "display": null,
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "issue_close_ratio": {
+     "value": 0.88,
+     "source": "https://github.com/ocaml/ocaml/issues",
+     "note": null,
+     "display": "0.88 (169 closed / 191 opened)",
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "packages_last_12m": {
+     "value": null,
+     "source": null,
+     "note": "none configured"
+    },
+    "packages_prior_12m": {
+     "value": null,
+     "source": null,
+     "note": "none configured"
+    },
+    "packages_change_pct": {
+     "value": null,
+     "source": null,
+     "note": "none configured"
+    },
+    "hn_quarters": {
+     "value": -4.3,
+     "source": "https://hn.algolia.com/?q=OCaml",
+     "note": "Algolia HN story search: OCaml",
+     "display": "38 37 45 41 39 61 37 17 (-4% recent 4q vs prior 4q)",
+     "series": {
+      "2025Q1": 38,
+      "2025Q2": 37,
+      "2025Q3": 45,
+      "2025Q4": 41,
+      "2026Q1": 39,
+      "2026Q2": 61,
+      "2026Q3": 37,
+      "2026Q4": 17
+     },
+     "values": [
+      38,
+      37,
+      45,
+      41,
+      39,
+      61,
+      37,
+      17
+     ],
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "trajectory": {
+     "value": 1,
+     "source": null,
+     "note": "contributors +25%; commits steady; merged PRs +16%; HN mentions steady; issue close rate keeping up",
+     "display": "up",
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     }
    },
    "config": {
@@ -718,11 +1627,21 @@
      "name": "ocaml-lsp",
      "repo": "ocaml/ocaml-lsp"
     },
+    "hn_query": "OCaml",
+    "governance": {
+     "body": "OCaml Software Foundation",
+     "body_url": "https://ocaml-sf.org/",
+     "rfc_url": "https://github.com/ocaml/RFCs",
+     "sources": [
+      "https://ocaml-sf.org/",
+      "https://github.com/ocaml/RFCs"
+     ]
+    },
     "_canonical": {
      "host": "github",
      "repo": "ocaml/ocaml",
      "mirror": false,
-     "pushed": "2026-11-09T19:16:45Z",
+     "pushed": "2026-11-10T07:24:18Z",
      "web": "https://github.com/ocaml/ocaml"
     }
    },
@@ -741,77 +1660,77 @@
      "source": "https://github.com/gleam-lang/gleam/commits",
      "note": null,
      "display": "2 (2026-11-07)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "commits_90d": {
      "value": 432,
      "source": "https://github.com/gleam-lang/gleam/commits",
      "note": null,
      "display": null,
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "authors_90d": {
      "value": 34,
      "source": "https://github.com/gleam-lang/gleam/commits",
      "note": null,
      "display": null,
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "authors_12m": {
      "value": 85,
      "source": "https://github.com/gleam-lang/gleam/commits",
      "note": null,
      "display": null,
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "top_share_12m": {
      "value": 24.0,
      "source": "https://github.com/gleam-lang/gleam/commits",
      "note": null,
      "display": "24.0% (giacomocavalieri, 402 of 1673)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "days_since_release": {
      "value": 28,
      "source": "https://github.com/gleam-lang/gleam/releases",
      "note": null,
      "display": "28 (v1.19.2, 2026-10-12)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "mergers_90d": {
      "value": 1,
      "source": "https://github.com/gleam-lang/gleam/pulls",
      "note": null,
      "display": "1 (lpil)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "outside_merged_90d": {
      "value": 54,
      "source": "https://github.com/gleam-lang/gleam/pulls",
      "note": null,
      "display": "54 by 28 people (of 130 merged)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "outside_accept_90d": {
      "value": 81.8,
      "source": "https://github.com/gleam-lang/gleam/pulls",
      "note": null,
      "display": "82% (54 merged, 12 closed unmerged)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "outside_open": {
-     "value": 39,
+     "value": 40,
      "source": "https://github.com/gleam-lang/gleam/pulls",
      "note": null,
-     "display": "39 (of 44 open)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "display": "40 (of 45 open)",
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "reddit_per_week": {
      "value": 2.8,
      "source": "https://www.reddit.com/r/gleamlang/new/",
      "note": "11 posts in last 28 days",
      "display": null,
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "forum_posts_7d": {
      "value": null,
@@ -828,28 +1747,28 @@
      "source": "https://github.com/gleam-lang/gleam/discussions",
      "note": null,
      "display": null,
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "discord_members": {
-     "value": 8450,
+     "value": 8449,
      "source": "https://discord.gg/Fm8Pwmy",
      "note": "server: The Gleam Programming Language",
      "display": null,
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "discord_online": {
-     "value": 1208,
+     "value": 1224,
      "source": "https://discord.gg/Fm8Pwmy",
      "note": "server: The Gleam Programming Language",
      "display": null,
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "platforms": {
      "value": 4,
      "source": null,
      "note": "counted from languages.toml",
      "display": "4 (Reddit, GitHub Discussions, Discord, X)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "x_activity": {
      "value": null,
@@ -861,68 +1780,226 @@
      "source": "https://zed.dev/extensions?query=gleam",
      "note": "gleam v0.6.0 263d; repo https://github.com/gleam-lang/zed-gleam",
      "display": "263 (stale, over 90 days) (gleam v0.6.0)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "zed_downloads": {
-     "value": 89642,
+     "value": 89650,
      "source": "https://zed.dev/extensions?query=gleam",
      "note": null,
      "display": null,
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "vscode_days": {
      "value": 15,
      "source": "https://marketplace.visualstudio.com/items?itemName=Gleam.gleam",
      "note": "Gleam.gleam: 15d, 39510 installs",
      "display": "15 (Gleam.gleam)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "vscode_installs": {
      "value": 39510,
      "source": "https://marketplace.visualstudio.com/items?itemName=Gleam.gleam",
      "note": null,
      "display": "39,510 (Gleam.gleam)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "vscode_rating": {
      "value": 4.8,
      "source": "https://marketplace.visualstudio.com/items?itemName=Gleam.gleam",
      "note": null,
      "display": "4.8 (5 ratings)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "openvsx_days": {
      "value": 15,
      "source": "https://open-vsx.org/extension/Gleam/gleam",
      "note": null,
      "display": "15 (Gleam.gleam)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "openvsx_downloads": {
      "value": 17720,
      "source": "https://open-vsx.org/extension/Gleam/gleam",
      "note": null,
      "display": null,
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "lsp_days": {
      "value": 2,
      "source": "https://github.com/gleam-lang/gleam/commits",
      "note": "gleam lsp (in compiler repo)",
      "display": "2 (2026-11-07)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "lsp_commits_90d": {
      "value": 432,
      "source": "https://github.com/gleam-lang/gleam/commits",
      "note": "gleam lsp (in compiler repo)",
      "display": null,
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "lsp_rating": {
      "value": null,
      "source": null,
      "note": "not rated (manual field in languages.toml)"
+    },
+    "authors_prior_12m": {
+     "value": 79,
+     "source": "https://github.com/gleam-lang/gleam/commits",
+     "note": null,
+     "display": "79 (vs 85 in last 12 months)",
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "authors_change_pct": {
+     "value": 7.6,
+     "source": "https://github.com/gleam-lang/gleam/commits",
+     "note": null,
+     "display": "+8%",
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "authors_retained_pct": {
+     "value": 24.1,
+     "source": "https://github.com/gleam-lang/gleam/commits",
+     "note": "19 of 79 prior-year authors also committed this year",
+     "display": "24% (19 of 79)",
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "commits_quarters": {
+     "value": -28.5,
+     "source": "https://github.com/gleam-lang/gleam/commits",
+     "note": null,
+     "display": "706 639 419 310 365 469 507 142 (-28% recent 4q vs prior 4q)",
+     "series": {
+      "2025Q1": 706,
+      "2025Q2": 639,
+      "2025Q3": 419,
+      "2025Q4": 310,
+      "2026Q1": 365,
+      "2026Q2": 469,
+      "2026Q3": 507,
+      "2026Q4": 142
+     },
+     "values": [
+      706,
+      639,
+      419,
+      310,
+      365,
+      469,
+      507,
+      142
+     ],
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "prs_quarters": {
+     "value": 7.1,
+     "source": "https://github.com/gleam-lang/gleam/pulls",
+     "note": null,
+     "display": "123 136 107 86 109 154 168 53 (+7% recent 4q vs prior 4q)",
+     "series": {
+      "2025Q1": 123,
+      "2025Q2": 136,
+      "2025Q3": 107,
+      "2025Q4": 86,
+      "2026Q1": 109,
+      "2026Q2": 154,
+      "2026Q3": 168,
+      "2026Q4": 53
+     },
+     "values": [
+      123,
+      136,
+      107,
+      86,
+      109,
+      154,
+      168,
+      53
+     ],
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "releases_per_year": {
+     "value": 14.17,
+     "source": "https://github.com/gleam-lang/gleam/releases",
+     "note": null,
+     "display": "14.17 (41 stable releases in 1057 days)",
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "release_gap_days": {
+     "value": 25.2,
+     "source": "https://github.com/gleam-lang/gleam/releases",
+     "note": null,
+     "display": "25 days mean interval (0-81)",
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "issues_opened_12m": {
+     "value": 448,
+     "source": "https://github.com/gleam-lang/gleam/issues",
+     "note": null,
+     "display": null,
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "issues_closed_12m": {
+     "value": 435,
+     "source": "https://github.com/gleam-lang/gleam/issues",
+     "note": null,
+     "display": null,
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "issue_close_ratio": {
+     "value": 0.97,
+     "source": "https://github.com/gleam-lang/gleam/issues",
+     "note": null,
+     "display": "0.97 (435 closed / 448 opened)",
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "packages_last_12m": {
+     "value": null,
+     "source": null,
+     "note": "none configured"
+    },
+    "packages_prior_12m": {
+     "value": null,
+     "source": null,
+     "note": "none configured"
+    },
+    "packages_change_pct": {
+     "value": null,
+     "source": null,
+     "note": "none configured"
+    },
+    "hn_quarters": {
+     "value": null,
+     "source": "https://hn.algolia.com/?q=Gleam%20language%20OR%20Gleam%20programming%20OR%20gleam-lang",
+     "note": "Algolia HN story search: Gleam language OR Gleam programming OR gleam-lang",
+     "display": "0 0 0 0 0 0 0 0",
+     "series": {
+      "2025Q1": 0,
+      "2025Q2": 0,
+      "2025Q3": 0,
+      "2025Q4": 0,
+      "2026Q1": 0,
+      "2026Q2": 0,
+      "2026Q3": 0,
+      "2026Q4": 0
+     },
+     "values": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "trajectory": {
+     "value": -1,
+     "source": null,
+     "note": "contributors steady; commits -28%; merged PRs steady; issue close rate keeping up",
+     "display": "down",
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     }
    },
    "config": {
@@ -955,6 +2032,7 @@
      "name": "gleam lsp (in compiler repo)",
      "repo": "gleam-lang/gleam"
     },
+    "hn_query": "Gleam language OR Gleam programming OR gleam-lang",
     "_canonical": {
      "host": "github",
      "repo": "gleam-lang/gleam",
@@ -978,77 +2056,77 @@
      "source": "https://github.com/nim-lang/Nim/commits",
      "note": null,
      "display": "0 (2026-11-09)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "commits_90d": {
      "value": 315,
      "source": "https://github.com/nim-lang/Nim/commits",
      "note": null,
      "display": null,
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "authors_90d": {
      "value": 58,
      "source": "https://github.com/nim-lang/Nim/commits",
      "note": null,
      "display": null,
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "authors_12m": {
      "value": 91,
      "source": "https://github.com/nim-lang/Nim/commits",
      "note": null,
      "display": null,
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "top_share_12m": {
-     "value": 28.0,
+     "value": 28.1,
      "source": "https://github.com/nim-lang/Nim/commits",
      "note": null,
-     "display": "28.0% (Araq, 189 of 674)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "display": "28.1% (Araq, 189 of 673)",
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "days_since_release": {
      "value": 13,
      "source": "https://github.com/nim-lang/Nim/tags",
      "note": "from latest tag; no GitHub releases",
      "display": "13 (v2.4.0, 2026-10-27)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "mergers_90d": {
      "value": 3,
      "source": "https://github.com/nim-lang/Nim/pulls",
      "note": null,
      "display": "3 (Araq, narimiran, ringabout)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "outside_merged_90d": {
      "value": 157,
      "source": "https://github.com/nim-lang/Nim/pulls",
      "note": null,
      "display": "157 by 53 people (of 296 merged)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "outside_accept_90d": {
      "value": 91.8,
      "source": "https://github.com/nim-lang/Nim/pulls",
      "note": null,
      "display": "92% (157 merged, 14 closed unmerged)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "outside_open": {
      "value": 82,
      "source": "https://github.com/nim-lang/Nim/pulls",
      "note": null,
      "display": "82 (of 142 open)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "reddit_per_week": {
      "value": 4.5,
      "source": "https://www.reddit.com/r/nim/new/",
      "note": "18 posts in last 28 days",
      "display": null,
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "forum_posts_7d": {
      "value": null,
@@ -1060,7 +2138,7 @@
      "source": "https://forum.nim-lang.org",
      "note": "18 threads had activity in 7 days",
      "display": null,
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "discussions_30d": {
      "value": null,
@@ -1072,21 +2150,21 @@
      "source": "https://discord.gg/nim",
      "note": "server: Nim",
      "display": null,
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "discord_online": {
-     "value": 565,
+     "value": 580,
      "source": "https://discord.gg/nim",
      "note": "server: Nim",
      "display": null,
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "platforms": {
      "value": 4,
      "source": null,
      "note": "counted from languages.toml",
      "display": "4 (Reddit, Forum, Discord, X)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "x_activity": {
      "value": null,
@@ -1098,68 +2176,226 @@
      "source": "https://zed.dev/extensions?query=nim",
      "note": "nim v0.2.0 604d; repo https://github.com/foxoman/zed-nim",
      "display": "604 (stale, over 90 days) (nim v0.2.0)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "zed_downloads": {
-     "value": 67013,
+     "value": 67023,
      "source": "https://zed.dev/extensions?query=nim",
      "note": null,
      "display": null,
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "vscode_days": {
      "value": 552,
      "source": "https://marketplace.visualstudio.com/items?itemName=NimLang.nimlang",
-     "note": "NimLang.nimlang: 552d, 22914 installs; kosz78.nim: 675d, 99813 installs",
+     "note": "NimLang.nimlang: 552d, 22914 installs; kosz78.nim: 676d, 99813 installs",
      "display": "552 (stale, over 90 days) (NimLang.nimlang)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "vscode_installs": {
      "value": 99813,
      "source": "https://marketplace.visualstudio.com/items?itemName=kosz78.nim",
      "note": null,
      "display": "99,813 (kosz78.nim)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "vscode_rating": {
      "value": 4.9,
      "source": "https://marketplace.visualstudio.com/items?itemName=kosz78.nim",
      "note": null,
      "display": "4.9 (20 ratings)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "openvsx_days": {
      "value": 1646,
      "source": "https://open-vsx.org/extension/nimsaem/nimvscode",
      "note": "absent: nimlang.nimlang",
      "display": "1646 (stale, over 90 days) (nimsaem.nimvscode)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "openvsx_downloads": {
      "value": 19018,
      "source": "https://open-vsx.org/extension/nimsaem/nimvscode",
      "note": null,
      "display": null,
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "lsp_days": {
      "value": 0,
      "source": "https://github.com/nim-lang/langserver/commits",
      "note": "nimlangserver",
      "display": "0 (2026-11-09)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "lsp_commits_90d": {
      "value": 82,
      "source": "https://github.com/nim-lang/langserver/commits",
      "note": "nimlangserver",
      "display": null,
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "lsp_rating": {
      "value": null,
      "source": null,
      "note": "not rated (manual field in languages.toml)"
+    },
+    "authors_prior_12m": {
+     "value": 45,
+     "source": "https://github.com/nim-lang/Nim/commits",
+     "note": null,
+     "display": "45 (vs 91 in last 12 months)",
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "authors_change_pct": {
+     "value": 102.2,
+     "source": "https://github.com/nim-lang/Nim/commits",
+     "note": null,
+     "display": "+102%",
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "authors_retained_pct": {
+     "value": 46.7,
+     "source": "https://github.com/nim-lang/Nim/commits",
+     "note": "21 of 45 prior-year authors also committed this year",
+     "display": "47% (21 of 45)",
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "commits_quarters": {
+     "value": 85.2,
+     "source": "https://github.com/nim-lang/Nim/commits",
+     "note": null,
+     "display": "87 94 64 92 117 121 172 214 (+85% recent 4q vs prior 4q)",
+     "series": {
+      "2025Q1": 87,
+      "2025Q2": 94,
+      "2025Q3": 64,
+      "2025Q4": 92,
+      "2026Q1": 117,
+      "2026Q2": 121,
+      "2026Q3": 172,
+      "2026Q4": 214
+     },
+     "values": [
+      87,
+      94,
+      64,
+      92,
+      117,
+      121,
+      172,
+      214
+     ],
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "prs_quarters": {
+     "value": 78.8,
+     "source": "https://github.com/nim-lang/Nim/pulls",
+     "note": null,
+     "display": "87 95 65 92 119 120 173 194 (+79% recent 4q vs prior 4q)",
+     "series": {
+      "2025Q1": 87,
+      "2025Q2": 95,
+      "2025Q3": 65,
+      "2025Q4": 92,
+      "2026Q1": 119,
+      "2026Q2": 120,
+      "2026Q3": 173,
+      "2026Q4": 194
+     },
+     "values": [
+      87,
+      95,
+      65,
+      92,
+      119,
+      120,
+      173,
+      194
+     ],
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "releases_per_year": {
+     "value": 4.75,
+     "source": "https://github.com/nim-lang/Nim/releases",
+     "note": null,
+     "display": "4.75 (10 stable releases in 769 days)",
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "release_gap_days": {
+     "value": 83.4,
+     "source": "https://github.com/nim-lang/Nim/releases",
+     "note": null,
+     "display": "83 days mean interval (29-191)",
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "issues_opened_12m": {
+     "value": 470,
+     "source": "https://github.com/nim-lang/Nim/issues",
+     "note": null,
+     "display": null,
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "issues_closed_12m": {
+     "value": 517,
+     "source": "https://github.com/nim-lang/Nim/issues",
+     "note": null,
+     "display": null,
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "issue_close_ratio": {
+     "value": 1.1,
+     "source": "https://github.com/nim-lang/Nim/issues",
+     "note": null,
+     "display": "1.1 (517 closed / 470 opened)",
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "packages_last_12m": {
+     "value": null,
+     "source": null,
+     "note": "none configured"
+    },
+    "packages_prior_12m": {
+     "value": null,
+     "source": null,
+     "note": "none configured"
+    },
+    "packages_change_pct": {
+     "value": null,
+     "source": null,
+     "note": "none configured"
+    },
+    "hn_quarters": {
+     "value": null,
+     "source": "https://hn.algolia.com/?q=Nim%20language%20OR%20Nim%20programming%20OR%20nim-lang",
+     "note": "Algolia HN story search: Nim language OR Nim programming OR nim-lang",
+     "display": "0 0 0 0 0 0 0 0",
+     "series": {
+      "2025Q1": 0,
+      "2025Q2": 0,
+      "2025Q3": 0,
+      "2025Q4": 0,
+      "2026Q1": 0,
+      "2026Q2": 0,
+      "2026Q3": 0,
+      "2026Q4": 0
+     },
+     "values": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "trajectory": {
+     "value": 1,
+     "source": null,
+     "note": "contributors +102%; commits +85%; merged PRs +79%; issues closing at 1.1x",
+     "display": "up",
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     }
    },
    "config": {
@@ -1197,11 +2433,18 @@
      "name": "nimlangserver",
      "repo": "nim-lang/langserver"
     },
+    "hn_query": "Nim language OR Nim programming OR nim-lang",
+    "governance": {
+     "rfc_url": "https://github.com/nim-lang/RFCs",
+     "sources": [
+      "https://github.com/nim-lang/RFCs"
+     ]
+    },
     "_canonical": {
      "host": "github",
      "repo": "nim-lang/Nim",
      "mirror": false,
-     "pushed": "2026-11-09T19:34:03Z",
+     "pushed": "2026-11-10T07:37:00Z",
      "web": "https://github.com/nim-lang/Nim"
     }
    },
@@ -1220,91 +2463,91 @@
      "source": "https://github.com/crystal-lang/crystal/commits",
      "note": "codeberg:crystal-lang/crystal unreachable (HTTP Error 404: Not Found); canonical repo detected as github:crystal-lang/crystal",
      "display": "0 (2026-11-09)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "commits_90d": {
      "value": 347,
      "source": "https://github.com/crystal-lang/crystal/commits",
      "note": null,
      "display": null,
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "authors_90d": {
      "value": 36,
      "source": "https://github.com/crystal-lang/crystal/commits",
      "note": null,
      "display": null,
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "authors_12m": {
      "value": 60,
      "source": "https://github.com/crystal-lang/crystal/commits",
      "note": null,
      "display": null,
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "top_share_12m": {
      "value": 39.5,
      "source": "https://github.com/crystal-lang/crystal/commits",
      "note": null,
      "display": "39.5% (straight-shoota, 340 of 861)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "days_since_release": {
      "value": 10,
      "source": "https://github.com/crystal-lang/crystal/releases",
      "note": null,
      "display": "10 (1.22.2, 2026-10-30)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "mergers_90d": {
      "value": 2,
      "source": "https://github.com/crystal-lang/crystal/pulls",
      "note": null,
      "display": "2 (straight-shoota, ysbaddaden)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "outside_merged_90d": {
      "value": 141,
      "source": "https://github.com/crystal-lang/crystal/pulls",
      "note": null,
      "display": "141 by 31 people (of 350 merged)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "outside_accept_90d": {
      "value": 85.5,
      "source": "https://github.com/crystal-lang/crystal/pulls",
      "note": null,
      "display": "85% (141 merged, 24 closed unmerged)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "outside_open": {
      "value": 337,
      "source": "https://github.com/crystal-lang/crystal/pulls",
      "note": null,
      "display": "337 (of 430 open)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "reddit_per_week": {
      "value": 1.0,
      "source": "https://www.reddit.com/r/crystal_programming/new/",
      "note": "4 posts in last 28 days",
      "display": null,
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "forum_posts_7d": {
-     "value": 96,
+     "value": 98,
      "source": "https://forum.crystal-lang.org",
      "note": null,
-     "display": "96 (260 in 30d)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "display": "98 (262 in 30d)",
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "forum_topics_7d": {
      "value": 5,
      "source": "https://forum.crystal-lang.org",
      "note": null,
      "display": "5 (22 in 30d)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "discussions_30d": {
      "value": null,
@@ -1316,21 +2559,21 @@
      "source": "https://discord.gg/YS7YvQy",
      "note": "server: Crystal Programming",
      "display": null,
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "discord_online": {
      "value": 150,
      "source": "https://discord.gg/YS7YvQy",
      "note": "server: Crystal Programming",
      "display": null,
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "platforms": {
      "value": 4,
      "source": null,
      "note": "counted from languages.toml",
      "display": "4 (Reddit, Forum, Discord, X)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "x_activity": {
      "value": null,
@@ -1342,70 +2585,228 @@
      "source": "https://zed.dev/extensions?query=crystal",
      "note": "crystal v0.0.8 88d; repo https://github.com/crystal-lang-tools/zed-crystal",
      "display": "88 (crystal v0.0.8)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "zed_downloads": {
-     "value": 61292,
+     "value": 61301,
      "source": "https://zed.dev/extensions?query=crystal",
      "note": null,
      "display": null,
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "vscode_days": {
      "value": 395,
      "source": "https://marketplace.visualstudio.com/items?itemName=crystal-lang-tools.crystal-lang",
      "note": "crystal-lang-tools.crystal-lang: 395d, 43144 installs",
      "display": "395 (stale, over 90 days) (crystal-lang-tools.crystal-lang)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "vscode_installs": {
      "value": 43144,
      "source": "https://marketplace.visualstudio.com/items?itemName=crystal-lang-tools.crystal-lang",
      "note": null,
      "display": "43,144 (crystal-lang-tools.crystal-lang)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "vscode_rating": {
      "value": 5.0,
      "source": "https://marketplace.visualstudio.com/items?itemName=crystal-lang-tools.crystal-lang",
      "note": null,
      "display": "5.0 (7 ratings)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "openvsx_days": {
      "value": 395,
      "source": "https://open-vsx.org/extension/crystal-lang-tools/crystal-lang",
      "note": null,
      "display": "395 (stale, over 90 days) (crystal-lang-tools.crystal-lang)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "openvsx_downloads": {
-     "value": 14357,
+     "value": 14359,
      "source": "https://open-vsx.org/extension/crystal-lang-tools/crystal-lang",
      "note": null,
      "display": null,
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "lsp_days": {
      "value": 52,
      "source": "https://github.com/elbywan/crystalline/commits",
      "note": "Crystalline",
      "display": "52 (2026-09-18)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "lsp_commits_90d": {
      "value": 31,
      "source": "https://github.com/elbywan/crystalline/commits",
      "note": "Crystalline",
      "display": null,
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "lsp_rating": {
      "value": 2,
      "source": null,
      "note": "Stable Zed plugin is not full featured; the development one needs careful installation and is buggy.",
      "display": null,
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "authors_prior_12m": {
+     "value": 49,
+     "source": "https://github.com/crystal-lang/crystal/commits",
+     "note": null,
+     "display": "49 (vs 60 in last 12 months)",
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "authors_change_pct": {
+     "value": 22.4,
+     "source": "https://github.com/crystal-lang/crystal/commits",
+     "note": null,
+     "display": "+22%",
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "authors_retained_pct": {
+     "value": 46.9,
+     "source": "https://github.com/crystal-lang/crystal/commits",
+     "note": "23 of 49 prior-year authors also committed this year",
+     "display": "47% (23 of 49)",
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "commits_quarters": {
+     "value": -5.1,
+     "source": "https://github.com/crystal-lang/crystal/commits",
+     "note": null,
+     "display": "177 198 185 246 158 200 250 157 (-5% recent 4q vs prior 4q)",
+     "series": {
+      "2025Q1": 177,
+      "2025Q2": 198,
+      "2025Q3": 185,
+      "2025Q4": 246,
+      "2026Q1": 158,
+      "2026Q2": 200,
+      "2026Q3": 250,
+      "2026Q4": 157
+     },
+     "values": [
+      177,
+      198,
+      185,
+      246,
+      158,
+      200,
+      250,
+      157
+     ],
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "prs_quarters": {
+     "value": -6.3,
+     "source": "https://github.com/crystal-lang/crystal/pulls",
+     "note": null,
+     "display": "179 198 185 246 156 198 248 155 (-6% recent 4q vs prior 4q)",
+     "series": {
+      "2025Q1": 179,
+      "2025Q2": 198,
+      "2025Q3": 185,
+      "2025Q4": 246,
+      "2026Q1": 156,
+      "2026Q2": 198,
+      "2026Q3": 248,
+      "2026Q4": 155
+     },
+     "values": [
+      179,
+      198,
+      185,
+      246,
+      156,
+      198,
+      248,
+      155
+     ],
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "releases_per_year": {
+     "value": 12.34,
+     "source": "https://github.com/crystal-lang/crystal/releases",
+     "note": null,
+     "display": "12.34 (35 stable releases in 1036 days)",
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "release_gap_days": {
+     "value": 29.6,
+     "source": "https://github.com/crystal-lang/crystal/releases",
+     "note": null,
+     "display": "30 days mean interval (1-91)",
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "issues_opened_12m": {
+     "value": 357,
+     "source": "https://github.com/crystal-lang/crystal/issues",
+     "note": null,
+     "display": null,
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "issues_closed_12m": {
+     "value": 356,
+     "source": "https://github.com/crystal-lang/crystal/issues",
+     "note": null,
+     "display": null,
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "issue_close_ratio": {
+     "value": 1.0,
+     "source": "https://github.com/crystal-lang/crystal/issues",
+     "note": null,
+     "display": "1.0 (356 closed / 357 opened)",
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "packages_last_12m": {
+     "value": null,
+     "source": null,
+     "note": "none configured"
+    },
+    "packages_prior_12m": {
+     "value": null,
+     "source": null,
+     "note": "none configured"
+    },
+    "packages_change_pct": {
+     "value": null,
+     "source": null,
+     "note": "none configured"
+    },
+    "hn_quarters": {
+     "value": null,
+     "source": "https://hn.algolia.com/?q=Crystal%20programming%20OR%20Crystal-lang%20OR%20%22Crystal%20language%22",
+     "note": "Algolia HN story search: Crystal programming OR Crystal-lang OR \"Crystal language\"",
+     "display": "0 0 0 0 0 0 0 0",
+     "series": {
+      "2025Q1": 0,
+      "2025Q2": 0,
+      "2025Q3": 0,
+      "2025Q4": 0,
+      "2026Q1": 0,
+      "2026Q2": 0,
+      "2026Q3": 0,
+      "2026Q4": 0
+     },
+     "values": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "trajectory": {
+     "value": 1,
+     "source": null,
+     "note": "contributors +22%; commits steady; merged PRs steady; issues closing at 1.0x",
+     "display": "up",
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     }
    },
    "config": {
@@ -1447,6 +2848,7 @@
     },
     "lsp_rating": 2,
     "lsp_notes": "Stable Zed plugin is not full featured; the development one needs careful installation and is buggy.",
+    "hn_query": "Crystal programming OR Crystal-lang OR \"Crystal language\"",
     "_canonical": {
      "host": "github",
      "repo": "crystal-lang/crystal",
@@ -1470,56 +2872,56 @@
      "source": "https://github.com/elm/compiler/commits",
      "note": null,
      "display": "38 (2026-10-02)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "commits_90d": {
      "value": 42,
      "source": "https://github.com/elm/compiler/commits",
      "note": null,
      "display": null,
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "authors_90d": {
      "value": 1,
      "source": "https://github.com/elm/compiler/commits",
      "note": null,
      "display": null,
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "authors_12m": {
      "value": 2,
      "source": "https://github.com/elm/compiler/commits",
      "note": null,
      "display": null,
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "top_share_12m": {
      "value": 99.3,
      "source": "https://github.com/elm/compiler/commits",
      "note": null,
      "display": "99.3% (evancz, 142 of 143)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "days_since_release": {
      "value": 38,
      "source": "https://github.com/elm/compiler/releases",
      "note": null,
      "display": "38 (0.19.3, 2026-10-02)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "mergers_90d": {
      "value": 0,
      "source": "https://github.com/elm/compiler/pulls",
      "note": null,
      "display": "0 ()",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "outside_merged_90d": {
      "value": 0,
      "source": "https://github.com/elm/compiler/pulls",
      "note": null,
      "display": "0 by 0 people (of 0 merged)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "outside_accept_90d": {
      "value": null,
@@ -1531,28 +2933,28 @@
      "source": "https://github.com/elm/compiler/pulls",
      "note": null,
      "display": "26 (of 26 open)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "reddit_per_week": {
      "value": 1.0,
      "source": "https://www.reddit.com/r/elm/new/",
      "note": "4 posts in last 28 days",
      "display": null,
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "forum_posts_7d": {
-     "value": 90,
+     "value": 94,
      "source": "https://discourse.elm-lang.org",
      "note": null,
-     "display": "90 (165 in 30d)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "display": "94 (169 in 30d)",
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "forum_topics_7d": {
      "value": 4,
      "source": "https://discourse.elm-lang.org",
      "note": null,
      "display": "4 (11 in 30d)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "discussions_30d": {
      "value": null,
@@ -1574,7 +2976,7 @@
      "source": null,
      "note": "counted from languages.toml",
      "display": "4 (Reddit, Forum, Slack, X)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "x_activity": {
      "value": null,
@@ -1586,68 +2988,226 @@
      "source": "https://zed.dev/extensions?query=elm",
      "note": "elm v0.2.2 296d; repo https://github.com/zed-extensions/elm",
      "display": "296 (stale, over 90 days) (elm v0.2.2)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "zed_downloads": {
-     "value": 64592,
+     "value": 64601,
      "source": "https://zed.dev/extensions?query=elm",
      "note": null,
      "display": null,
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "vscode_days": {
      "value": 36,
      "source": "https://marketplace.visualstudio.com/items?itemName=Elmtooling.elm-ls-vscode",
      "note": "Elmtooling.elm-ls-vscode: 36d, 99332 installs",
      "display": "36 (Elmtooling.elm-ls-vscode)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "vscode_installs": {
      "value": 99332,
      "source": "https://marketplace.visualstudio.com/items?itemName=Elmtooling.elm-ls-vscode",
      "note": null,
      "display": "99,332 (Elmtooling.elm-ls-vscode)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "vscode_rating": {
      "value": 5.0,
      "source": "https://marketplace.visualstudio.com/items?itemName=Elmtooling.elm-ls-vscode",
      "note": null,
      "display": "5.0 (26 ratings)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "openvsx_days": {
      "value": 36,
      "source": "https://open-vsx.org/extension/Elmtooling/elm-ls-vscode",
      "note": null,
      "display": "36 (Elmtooling.elm-ls-vscode)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "openvsx_downloads": {
-     "value": 20383,
+     "value": 20391,
      "source": "https://open-vsx.org/extension/Elmtooling/elm-ls-vscode",
      "note": null,
      "display": null,
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "lsp_days": {
      "value": 26,
      "source": "https://github.com/elm-tooling/elm-language-server/commits",
      "note": "elm-language-server",
      "display": "26 (2026-10-14)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "lsp_commits_90d": {
-     "value": 149,
+     "value": 147,
      "source": "https://github.com/elm-tooling/elm-language-server/commits",
      "note": "elm-language-server",
      "display": null,
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "lsp_rating": {
      "value": null,
      "source": null,
      "note": "not rated (manual field in languages.toml)"
+    },
+    "authors_prior_12m": {
+     "value": 1,
+     "source": "https://github.com/elm/compiler/commits",
+     "note": null,
+     "display": "1 (vs 2 in last 12 months)",
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "authors_change_pct": {
+     "value": 100.0,
+     "source": "https://github.com/elm/compiler/commits",
+     "note": null,
+     "display": "+100%",
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "authors_retained_pct": {
+     "value": 100.0,
+     "source": "https://github.com/elm/compiler/commits",
+     "note": "1 of 1 prior-year authors also committed this year",
+     "display": "100% (1 of 1)",
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "commits_quarters": {
+     "value": 1455.6,
+     "source": "https://github.com/elm/compiler/commits",
+     "note": null,
+     "display": "0 0 6 3 0 56 80 4 (+1456% recent 4q vs prior 4q)",
+     "series": {
+      "2025Q1": 0,
+      "2025Q2": 0,
+      "2025Q3": 6,
+      "2025Q4": 3,
+      "2026Q1": 0,
+      "2026Q2": 56,
+      "2026Q3": 80,
+      "2026Q4": 4
+     },
+     "values": [
+      0,
+      0,
+      6,
+      3,
+      0,
+      56,
+      80,
+      4
+     ],
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "prs_quarters": {
+     "value": 100.0,
+     "source": "https://github.com/elm/compiler/pulls",
+     "note": null,
+     "display": "0 0 0 0 0 0 1 0 (+100% recent 4q vs prior 4q)",
+     "series": {
+      "2025Q1": 0,
+      "2025Q2": 0,
+      "2025Q3": 0,
+      "2025Q4": 0,
+      "2026Q1": 0,
+      "2026Q2": 0,
+      "2026Q3": 1,
+      "2026Q4": 0
+     },
+     "values": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0
+     ],
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "releases_per_year": {
+     "value": 5.75,
+     "source": "https://github.com/elm/compiler/releases",
+     "note": null,
+     "display": "5.75 (2 stable releases in 127 days)",
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "release_gap_days": {
+     "value": 88.0,
+     "source": "https://github.com/elm/compiler/releases",
+     "note": null,
+     "display": "88 days mean interval (88-88)",
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "issues_opened_12m": {
+     "value": 11,
+     "source": "https://github.com/elm/compiler/issues",
+     "note": null,
+     "display": null,
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "issues_closed_12m": {
+     "value": 32,
+     "source": "https://github.com/elm/compiler/issues",
+     "note": null,
+     "display": null,
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "issue_close_ratio": {
+     "value": 2.91,
+     "source": "https://github.com/elm/compiler/issues",
+     "note": null,
+     "display": "2.91 (32 closed / 11 opened)",
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "packages_last_12m": {
+     "value": null,
+     "source": null,
+     "note": "none configured"
+    },
+    "packages_prior_12m": {
+     "value": null,
+     "source": null,
+     "note": "none configured"
+    },
+    "packages_change_pct": {
+     "value": null,
+     "source": null,
+     "note": "none configured"
+    },
+    "hn_quarters": {
+     "value": null,
+     "source": "https://hn.algolia.com/?q=Elm%20language%20OR%20Elm%20programming%20OR%20elm-lang",
+     "note": "Algolia HN story search: Elm language OR Elm programming OR elm-lang",
+     "display": "0 0 0 0 0 0 0 0",
+     "series": {
+      "2025Q1": 0,
+      "2025Q2": 0,
+      "2025Q3": 0,
+      "2025Q4": 0,
+      "2026Q1": 0,
+      "2026Q2": 0,
+      "2026Q3": 0,
+      "2026Q4": 0
+     },
+     "values": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "trajectory": {
+     "value": 1,
+     "source": null,
+     "note": "contributors +100%; commits +1456%; merged PRs +100%; issues closing at 2.91x",
+     "display": "up",
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     }
    },
    "config": {
@@ -1684,6 +3244,7 @@
      "name": "elm-language-server",
      "repo": "elm-tooling/elm-language-server"
     },
+    "hn_query": "Elm language OR Elm programming OR elm-lang",
     "_canonical": {
      "host": "github",
      "repo": "elm/compiler",
@@ -1707,77 +3268,77 @@
      "source": "https://github.com/roc-lang/roc/commits",
      "note": null,
      "display": "0 (2026-11-10)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "commits_90d": {
-     "value": 7209,
+     "value": 7223,
      "source": "https://github.com/roc-lang/roc/commits",
      "note": null,
      "display": null,
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "authors_90d": {
      "value": 21,
      "source": "https://github.com/roc-lang/roc/commits",
      "note": null,
      "display": null,
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "authors_12m": {
      "value": 60,
      "source": "https://github.com/roc-lang/roc/commits",
      "note": null,
      "display": null,
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "top_share_12m": {
      "value": 76.5,
      "source": "https://github.com/roc-lang/roc/commits",
      "note": null,
-     "display": "76.5% (rtfeldman, 14611 of 19098)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "display": "76.5% (rtfeldman, 14626 of 19113)",
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "days_since_release": {
      "value": 440,
      "source": "https://github.com/roc-lang/roc/releases",
      "note": null,
      "display": "440 (alpha4-rolling, 2025-08-26)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "mergers_90d": {
      "value": 3,
      "source": "https://github.com/roc-lang/roc/pulls",
      "note": null,
      "display": "3 (Anton-4, lukewilliamboswell, rtfeldman)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "outside_merged_90d": {
-     "value": 837,
+     "value": 838,
      "source": "https://github.com/roc-lang/roc/pulls",
      "note": null,
-     "display": "837 by 16 people (of 985 merged)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "display": "838 by 16 people (of 986 merged)",
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "outside_accept_90d": {
      "value": 97.6,
      "source": "https://github.com/roc-lang/roc/pulls",
      "note": null,
-     "display": "98% (837 merged, 21 closed unmerged)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "display": "98% (838 merged, 21 closed unmerged)",
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "outside_open": {
-     "value": 12,
+     "value": 11,
      "source": "https://github.com/roc-lang/roc/pulls",
      "note": null,
-     "display": "12 (of 21 open)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "display": "11 (of 20 open)",
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "reddit_per_week": {
      "value": 1.2,
      "source": "https://www.reddit.com/r/roc_lang/new/",
      "note": "5 posts in last 28 days",
      "display": null,
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "forum_posts_7d": {
      "value": null,
@@ -1794,7 +3355,7 @@
      "source": "https://github.com/roc-lang/roc/discussions",
      "note": null,
      "display": null,
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "discord_members": {
      "value": null,
@@ -1811,7 +3372,7 @@
      "source": null,
      "note": "counted from languages.toml",
      "display": "3 (Reddit, GitHub Discussions, Zulip)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "x_activity": {
      "value": null,
@@ -1823,28 +3384,28 @@
      "source": "https://zed.dev/extensions?query=roc",
      "note": "roc v0.2.0 78d; repo https://github.com/h2000/zed-roc",
      "display": "78 (roc v0.2.0)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "zed_downloads": {
-     "value": 60574,
+     "value": 60583,
      "source": "https://zed.dev/extensions?query=roc",
      "note": null,
      "display": null,
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "vscode_days": {
      "value": 1036,
      "source": "https://marketplace.visualstudio.com/items?itemName=IvanDemchenko.roc-lang-unofficial",
      "note": "IvanDemchenko.roc-lang-unofficial: 1036d, 2509 installs",
      "display": "1036 (stale, over 90 days) (IvanDemchenko.roc-lang-unofficial)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "vscode_installs": {
      "value": 2509,
      "source": "https://marketplace.visualstudio.com/items?itemName=IvanDemchenko.roc-lang-unofficial",
      "note": null,
      "display": "2,509 (IvanDemchenko.roc-lang-unofficial)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "vscode_rating": {
      "value": null,
@@ -1856,33 +3417,189 @@
      "source": "https://open-vsx.org/extension/IvanDemchenko/roc-lang-unofficial",
      "note": null,
      "display": "1036 (stale, over 90 days) (IvanDemchenko.roc-lang-unofficial)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "openvsx_downloads": {
      "value": 1992,
      "source": "https://open-vsx.org/extension/IvanDemchenko/roc-lang-unofficial",
      "note": null,
      "display": null,
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "lsp_days": {
      "value": 0,
      "source": "https://github.com/roc-lang/roc/commits",
      "note": "roc language server (in compiler repo)",
      "display": "0 (2026-11-10)",
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "lsp_commits_90d": {
      "value": 4000,
      "source": "https://github.com/roc-lang/roc/commits",
      "note": "roc language server (in compiler repo)",
      "display": null,
-     "measured_at": "2026-11-10T05:54:55.032433+00:00"
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     },
     "lsp_rating": {
      "value": null,
      "source": null,
      "note": "not rated (manual field in languages.toml)"
+    },
+    "authors_prior_12m": {
+     "value": 0,
+     "source": "https://github.com/roc-lang/roc/commits",
+     "note": "history capped; older window may be incomplete",
+     "display": "0 (vs 12 in last 12 months)",
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "authors_change_pct": {
+     "value": 100.0,
+     "source": "https://github.com/roc-lang/roc/commits",
+     "note": "history capped; older window may be incomplete",
+     "display": "+100%",
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "authors_retained_pct": {
+     "value": null,
+     "source": "https://github.com/roc-lang/roc/commits",
+     "note": "not measured: no authors in prior 12 months"
+    },
+    "commits_quarters": {
+     "value": 163.2,
+     "source": "https://github.com/roc-lang/roc/commits",
+     "note": null,
+     "display": "993 823 1844 2840 2954 4150 6052 3954 (+163% recent 4q vs prior 4q)",
+     "series": {
+      "2025Q1": 993,
+      "2025Q2": 823,
+      "2025Q3": 1844,
+      "2025Q4": 2840,
+      "2026Q1": 2954,
+      "2026Q2": 4150,
+      "2026Q3": 6052,
+      "2026Q4": 3954
+     },
+     "values": [
+      993,
+      823,
+      1844,
+      2840,
+      2954,
+      4150,
+      6052,
+      3954
+     ],
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "prs_quarters": {
+     "value": 89.4,
+     "source": "https://github.com/roc-lang/roc/pulls",
+     "note": null,
+     "display": "226 162 286 407 264 317 1075 391 (+89% recent 4q vs prior 4q)",
+     "series": {
+      "2025Q1": 226,
+      "2025Q2": 162,
+      "2025Q3": 286,
+      "2025Q4": 407,
+      "2026Q1": 264,
+      "2026Q2": 317,
+      "2026Q3": 1075,
+      "2026Q4": 391
+     },
+     "values": [
+      226,
+      162,
+      286,
+      407,
+      264,
+      317,
+      1075,
+      391
+     ],
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "releases_per_year": {
+     "value": 1.69,
+     "source": "https://github.com/roc-lang/roc/releases",
+     "note": null,
+     "display": "1.69 (3 stable releases in 649 days)",
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "release_gap_days": {
+     "value": 103.5,
+     "source": "https://github.com/roc-lang/roc/releases",
+     "note": null,
+     "display": "104 days mean interval (27-180)",
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "issues_opened_12m": {
+     "value": 1856,
+     "source": "https://github.com/roc-lang/roc/issues",
+     "note": null,
+     "display": null,
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "issues_closed_12m": {
+     "value": 2594,
+     "source": "https://github.com/roc-lang/roc/issues",
+     "note": null,
+     "display": null,
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "issue_close_ratio": {
+     "value": 1.4,
+     "source": "https://github.com/roc-lang/roc/issues",
+     "note": null,
+     "display": "1.4 (2594 closed / 1856 opened)",
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
+    },
+    "packages_last_12m": {
+     "value": null,
+     "source": null,
+     "note": "none configured"
+    },
+    "packages_prior_12m": {
+     "value": null,
+     "source": null,
+     "note": "none configured"
+    },
+    "packages_change_pct": {
+     "value": null,
+     "source": null,
+     "note": "none configured"
+    },
+    "hn_quarters": {
+     "value": null,
+     "source": "https://hn.algolia.com/?q=Roc-lang%20OR%20%22Roc%20language%22%20OR%20%22Roc%20programming%22",
+     "note": "Algolia HN story search: Roc-lang OR \"Roc language\" OR \"Roc programming\"",
+     "display": "0 0 0 0 0 0 0 0",
+     "series": {
+      "2025Q1": 0,
+      "2025Q2": 0,
+      "2025Q3": 0,
+      "2025Q4": 0,
+      "2026Q1": 0,
+      "2026Q2": 0,
+      "2026Q3": 0,
+      "2026Q4": 0
+     },
+     "values": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "trajectory": {
+     "value": 1,
+     "source": null,
+     "note": "contributors +100%; commits +163%; merged PRs +89%; issues closing at 1.4x",
+     "display": "up",
+     "measured_at": "2026-11-10T07:50:47.289588+00:00"
     }
    },
    "config": {
@@ -1911,11 +3628,18 @@
      "repo": "roc-lang/roc"
     },
     "subreddit": "roc_lang",
+    "hn_query": "Roc-lang OR \"Roc language\" OR \"Roc programming\"",
+    "governance": {
+     "rfc_url": "https://github.com/roc-lang/rfcs",
+     "sources": [
+      "https://github.com/roc-lang/rfcs"
+     ]
+    },
     "_canonical": {
      "host": "github",
      "repo": "roc-lang/roc",
      "mirror": false,
-     "pushed": "2026-11-10T05:53:40Z",
+     "pushed": "2026-11-10T06:42:17Z",
      "web": "https://github.com/roc-lang/roc"
     }
    },
