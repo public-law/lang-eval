@@ -1,7 +1,7 @@
 import unittest
 from pathlib import Path
 
-from lang_eval import CONFIG, ConfigError, load_config, is_prerelease_tag, sparkline, trajectory_direction, ok, missing, hn_queries
+from lang_eval import CONFIG, ConfigError, load_config, is_prerelease_tag, sparkline, trajectory_direction, ok, missing, hn_queries, pct_change, series_metric, cached_quarters, recent_quarters, NOW
 
 GOOD = """
 [[language]]
@@ -113,6 +113,49 @@ governance = { body = "X", extra = 1, roadmap_updated = "10/31/2026" }
         self.assertEqual(steady["display"], "flat")
         none = trajectory_direction({"authors_change_pct": missing("x")})
         self.assertIsNone(none["value"])
+        no_up_from_missing = trajectory_direction({"authors_change_pct": missing("incomplete"), "commits_quarters": ok(5, None)})
+        self.assertEqual(no_up_from_missing["display"], "flat")
+
+    def test_pct_change_requires_measured_prior(self) -> None:
+        self.assertIsNone(pct_change(10, None, prior_measured=False))
+        self.assertIsNone(pct_change(10, 0, prior_measured=False))
+        self.assertEqual(pct_change(10, 0, prior_measured=True), 100.0)
+        self.assertIsNone(pct_change(0, 0, prior_measured=True))
+        self.assertEqual(pct_change(15, 10, prior_measured=True), 50.0)
+        self.assertEqual(pct_change(8, 10, prior_measured=True), -20.0)
+
+    def test_series_metric_skips_unmeasured_prior(self) -> None:
+        labels = [q for q, _, _ in recent_quarters()]
+        partial = {q: 100 for q in labels[-4:]}
+        m = series_metric(partial, "https://example.com/commits")
+        self.assertIsNone(m["value"])
+        self.assertIn("-", m["display"] or "")
+        self.assertIn("unmeasured", m["display"] or "")
+
+    def test_series_metric_measured_zero_prior_is_plus_100(self) -> None:
+        labels = [q for q, _, _ in recent_quarters()]
+        series = {q: 0 for q in labels[:4]}
+        series.update({q: 10 for q in labels[-4:]})
+        m = series_metric(series, "https://example.com/commits")
+        self.assertEqual(m["value"], 100.0)
+        self.assertIn("+100%", m["display"] or "")
+
+    def test_cached_quarters_skips_zeros_and_hn_query_mismatch(self) -> None:
+        labels = [q for q, _, end in recent_quarters() if end < NOW]
+        self.assertGreaterEqual(len(labels), 2)
+        q0, q1 = labels[0], labels[1]
+        query = "Zig language OR ziglang"
+        stale = {"languages": {"Zig": {
+            "hn_quarters": {"query": "old query", "series": {q0: 5, q1: 9}},
+            "commits_quarters": {"series": {q0: 0, q1: 12}},
+        }}}
+        found = cached_quarters("Zig", [stale], query)
+        self.assertEqual(found["hn_quarters"], {})
+        self.assertEqual(found["commits_quarters"], {q1: 12})
+        legacy = {"languages": {"Zig": {"hn_quarters": {"series": {q0: 8, q1: 3}}}}}
+        self.assertEqual(cached_quarters("Zig", [legacy], query)["hn_quarters"], {})
+        fresh = {"languages": {"Zig": {"hn_quarters": {"query": query, "series": {q0: 8, q1: 0}}}}}
+        self.assertEqual(cached_quarters("Zig", [fresh], query)["hn_quarters"], {q0: 8})
 
     def test_missing_language_table_and_bad_toml(self) -> None:
         self.assertEqual(problems('title = "x"\n'), ["language: missing required field", "title: unknown key 'title'"])

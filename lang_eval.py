@@ -92,6 +92,7 @@ class Metric(TypedDict):
     cached_from: NotRequired[str | None]
     series: NotRequired[dict[str, int]]
     values: NotRequired[list[float | None]]
+    query: NotRequired[str]
 
 
 type Metrics = dict[str, Metric]
@@ -431,6 +432,14 @@ def ok(value: float | None, source: str | None, note: str | None = None, display
 
 def missing(reason: str, source: str | None = None) -> Metric:
     return {"value": None, "source": source, "note": reason}
+
+
+def pct_change(last: float, prior: float | None, prior_measured: bool = True) -> float | None:
+    if not prior_measured or prior is None:
+        return None
+    if prior == 0:
+        return 100.0 if last else None
+    return round(100 * (last - prior) / prior, 1)
 
 
 def guarded[*Ts](keys: Iterable[str], fn: Callable[[*Ts], Metrics], *args: *Ts) -> Metrics:
@@ -1201,11 +1210,11 @@ def gitlab_activity(r: Canonical) -> Metrics:
 # ---------- Trajectory ----------
 
 QUARTERS = 8
-COMMIT_PAGE_CAP = 40
+WINDOW_PAGES = 400
 
 
 def trajectory(lang: Language, canonical: Canonical | None, history: list[dict[str, JSON]]) -> Metrics:
-    cached = cached_quarters(lang.name, history)
+    cached = cached_quarters(lang.name, history, lang.hn_query or lang.name)
     out: Metrics = {}
     out.update(guarded(["authors_prior_12m", "authors_change_pct", "authors_retained_pct"], contributor_trend, canonical))
     out.update(guarded(["commits_quarters", "prs_quarters"], volume_quarters, canonical, cached))
@@ -1217,18 +1226,27 @@ def trajectory(lang: Language, canonical: Canonical | None, history: list[dict[s
     return out
 
 
-def cached_quarters(name: str, history: list[dict[str, JSON]]) -> dict[str, dict[str, int]]:
+def cached_quarters(name: str, history: list[dict[str, JSON]], hn_query: str | None = None) -> dict[str, dict[str, int]]:
     found: dict[str, dict[str, int]] = {"commits_quarters": {}, "prs_quarters": {}, "hn_quarters": {}, "packages": {}}
     complete = {label for label, _, end in recent_quarters() if end < NOW}
     for row in history:
         lang = ((row.get("languages") or {}).get(name) or {})
+        if not isinstance(lang, dict):
+            continue
         for key in ("commits_quarters", "prs_quarters", "hn_quarters"):
-            series = (lang.get(key) or {}).get("series") or {}
+            metric = lang.get(key) or {}
+            if not isinstance(metric, dict):
+                continue
+            if key == "hn_quarters" and metric.get("query") != hn_query:
+                continue
+            series = metric.get("series") or {}
+            if not isinstance(series, dict):
+                continue
             for q, n in series.items():
-                if q in complete and q not in found[key] and isinstance(n, (int, float)):
+                if q in complete and q not in found[key] and isinstance(n, (int, float)) and int(n) != 0:
                     found[key][q] = int(n)
         packs = lang.get("packages_last_12m") or {}
-        if packs.get("series"):
+        if isinstance(packs, dict) and packs.get("series"):
             for q, n in packs["series"].items():
                 if isinstance(n, (int, float)):
                     found["packages"][q] = int(n)
@@ -1250,13 +1268,21 @@ def recent_quarters() -> list[tuple[str, datetime, datetime]]:
 
 def series_metric(series: dict[str, int], source: str, note: str | None = None) -> Metric:
     labels = [q for q, _, _ in recent_quarters()]
-    values: list[float | None] = [series.get(q) for q in labels]
-    last4, prev4 = sum(v or 0 for v in values[-4:]), sum(v or 0 for v in values[:4]) if len(values) >= 8 else None
-    change = round(100 * (last4 - prev4) / prev4, 1) if prev4 not in (None, 0) else (100.0 if last4 and prev4 == 0 else None)
+    values: list[float | None] = [series[q] if q in series else None for q in labels]
+    last4, prev4 = values[-4:], values[:4]
+    incomplete = len(values) < 8 or any(v is None for v in last4 + prev4)
+    last_total = sum(v for v in last4 if v is not None)
+    prev_total = sum(v for v in prev4 if v is not None)
+    change = None if incomplete else pct_change(last_total, prev_total, prior_measured=True)
     display = " ".join(f"{v}" if v is not None else "-" for v in values)
+    extra = None
     if change is not None:
         display += f" ({change:+.0f}% recent 4q vs prior 4q)"
-    m: Metric = ok(change, source, note, display=display)
+    elif incomplete and any(v is not None for v in values):
+        extra = "not measured: some quarters in the comparison window were not fully counted"
+        display += " (change not computed; some quarters unmeasured)"
+    joined = "; ".join(p for p in (note, extra) if p)
+    m: Metric = ok(change, source, joined or None, display=display)
     m["series"] = series
     m["values"] = values
     return m
@@ -1266,30 +1292,64 @@ def contributor_trend(canonical: Canonical | None) -> Metrics:
     if not canonical:
         return {k: missing("not measured: no repo reachable") for k in ("authors_prior_12m", "authors_change_pct", "authors_retained_pct")}
     mid, start = NOW - timedelta(days=365), NOW - timedelta(days=730)
-    rows = list_commits(canonical, start, COMMIT_PAGE_CAP)
-    src = f"{canonical.web}/commits" if canonical.host == "github" else f"{canonical.web}/-/commits"
+    rows, complete = collect_commits(canonical, start, WINDOW_PAGES)
+    src = f"{canonical.web}/-/commits" if canonical.host == "gitlab" else f"{canonical.web}/commits"
+    if not complete:
+        note = "not measured: commit history did not cover the full 24-month window"
+        return {k: missing(note, src) for k in ("authors_prior_12m", "authors_change_pct", "authors_retained_pct")}
     last = {r.author for r in rows if parse_time(r.date) >= mid and not is_bot(r.author)}
     prior = {r.author for r in rows if start <= parse_time(r.date) < mid and not is_bot(r.author)}
-    note = "history capped; older window may be incomplete" if len(rows) >= COMMIT_PAGE_CAP * 100 else None
     retained = len(last & prior)
-    change = round(100 * (len(last) - len(prior)) / len(prior), 1) if prior else (100.0 if last else None)
+    change = pct_change(len(last), len(prior), prior_measured=True)
     retain_pct = round(100 * retained / len(prior), 1) if prior else None
     return {
-        "authors_prior_12m": ok(len(prior), src, note, display=f"{len(prior)} (vs {len(last)} in last 12 months)"),
-        "authors_change_pct": ok(change, src, note, display=f"{change:+.0f}%" if change is not None else None) if change is not None else missing("not measured: no authors in prior 12 months", src),
+        "authors_prior_12m": ok(len(prior), src, display=f"{len(prior)} (vs {len(last)} in last 12 months)"),
+        "authors_change_pct": ok(change, src, display=f"{change:+.0f}%" if change is not None else None) if change is not None else missing("not measured: no authors in prior 12 months", src),
         "authors_retained_pct": ok(retain_pct, src, f"{retained} of {len(prior)} prior-year authors also committed this year",
                                    display=f"{retain_pct:.0f}% ({retained} of {len(prior)})") if retain_pct is not None else missing("not measured: no authors in prior 12 months", src),
     }
 
 
-def list_commits(r: Canonical, since: datetime, limit: int) -> list[Commit]:
+def host_page_size(host: str) -> int:
+    return 100 if host in ("github", "gitlab") else 50
+
+
+def window_complete(rows: list[Commit], since: datetime, limit: int, host: str) -> bool:
+    if len(rows) < limit * host_page_size(host):
+        return True
+    if not rows:
+        return True
+    return min(parse_time(c.date) for c in rows) <= since
+
+
+def collect_commits(r: Canonical, since: datetime, limit: int, until: datetime | None = None) -> tuple[list[Commit], bool]:
+    rows = list_commits(r, since, limit, until=until)
+    complete = window_complete(rows, since, limit, r.host)
+    if until is not None and r.host not in ("github", "gitlab"):
+        # Forgejo ignores until, so the completeness check uses the unfiltered walk from HEAD.
+        rows = [c for c in rows if parse_time(c.date) < until]
+    rows = [c for c in rows if parse_time(c.date) >= since]
+    return rows, complete
+
+
+def list_commits(r: Canonical, since: datetime, limit: int, until: datetime | None = None) -> list[Commit]:
     if r.host == "github":
-        return [parse_commit(c) for c in gh_paged(f"/repos/{r.repo}/commits", {"since": since.isoformat()}, limit=limit)]
+        params: Params = {"since": since.isoformat()}
+        if until is not None:
+            params["until"] = until.isoformat()
+        return [parse_commit(c) for c in gh_paged(f"/repos/{r.repo}/commits", params, limit=limit)]
     if r.host == "gitlab":
         url = f"{gitlab_base(r.api)}/projects/{quote_path(r.repo)}/repository/commits"
-        return [parse_gitlab_commit(c) for c in gitlab_paged(url, {"since": since.isoformat()}, limit=limit)]
+        params = {"since": since.isoformat()}
+        if until is not None:
+            params["until"] = until.isoformat()
+        return [parse_gitlab_commit(c) for c in gitlab_paged(url, params, limit=limit)]
     url = f"{forgejo_base(r.host, r.api)}/repos/{r.repo}/commits"
-    return [parse_commit(c) for c in forgejo_paged(url, {"since": since.isoformat(), "stat": "false", "files": "false", "verification": "false"}, limit=limit)]
+    params = {"since": since.isoformat(), "stat": "false", "files": "false", "verification": "false"}
+    if until is not None:
+        params["until"] = until.isoformat()
+    return [parse_commit(c) for c in forgejo_paged(
+        url, params, stop=lambda c: parse_time(c["commit"]["committer"]["date"]) < since, limit=limit)]
 
 
 def volume_quarters(canonical: Canonical | None, cached: dict[str, dict[str, int]]) -> Metrics:
@@ -1299,18 +1359,26 @@ def volume_quarters(canonical: Canonical | None, cached: dict[str, dict[str, int
     prs: dict[str, int] = dict(cached.get("prs_quarters") or {})
     missing_q = [(label, start, end) for label, start, end in recent_quarters() if label not in commits]
     if missing_q and canonical.host != "github":
-        commits.update(bucket_commits(canonical))
+        counted, covered = bucket_commits(canonical)
+        for label in covered:
+            commits.setdefault(label, counted[label])
         missing_q = [(label, start, end) for label, start, end in recent_quarters() if label not in commits]
     for label, start, end in missing_q:
-        commits[label] = count_commits(canonical, start, end)
+        n = count_commits(canonical, start, end)
+        if n is not None:
+            commits[label] = n
     missing_pr = [(label, start, end) for label, start, end in recent_quarters() if label not in prs]
     if missing_pr and canonical.host != "github":
-        prs.update(bucket_merged_prs(canonical))
+        counted_pr, covered_pr = bucket_merged_prs(canonical)
+        for label in covered_pr:
+            prs.setdefault(label, counted_pr[label])
         missing_pr = [(label, start, end) for label, start, end in recent_quarters() if label not in prs]
     for label, start, end in missing_pr:
-        prs[label] = count_merged_prs(canonical, start, end)
-    commit_src = canonical.web + ("/commits" if canonical.host == "github" else "/-/commits")
-    pr_src = canonical.web + ("/pulls" if canonical.host != "gitlab" else "/-/merge_requests")
+        n_pr = count_merged_prs(canonical, start, end)
+        if n_pr is not None:
+            prs[label] = n_pr
+    commit_src = canonical.web + ("/-/commits" if canonical.host == "gitlab" else "/commits")
+    pr_src = canonical.web + ("/-/merge_requests" if canonical.host == "gitlab" else "/pulls")
     return {
         "commits_quarters": series_metric(commits, commit_src),
         "prs_quarters": series_metric(prs, pr_src),
@@ -1321,36 +1389,57 @@ def quarter_label(when: datetime) -> str:
     return f"{when.year}Q{(when.month - 1) // 3 + 1}"
 
 
-def bucket_commits(r: Canonical) -> dict[str, int]:
+def covered_quarters(oldest: datetime) -> set[str]:
+    return {label for label, start, _end in recent_quarters() if start >= oldest}
+
+
+def bucket_commits(r: Canonical) -> tuple[dict[str, int], set[str]]:
     start = recent_quarters()[0][1]
+    rows, complete = collect_commits(r, start, WINDOW_PAGES)
     counts: dict[str, int] = {label: 0 for label, _, _ in recent_quarters()}
-    for row in list_commits(r, start, COMMIT_PAGE_CAP):
+    for row in rows:
         when = parse_time(row.date)
         if when >= start:
             counts[quarter_label(when)] = counts.get(quarter_label(when), 0) + 1
-    return counts
+    if complete:
+        return counts, set(counts)
+    if not rows:
+        return {}, set()
+    oldest = min(parse_time(row.date) for row in rows)
+    return counts, covered_quarters(oldest)
 
 
-def bucket_merged_prs(r: Canonical) -> dict[str, int]:
+def bucket_merged_prs(r: Canonical) -> tuple[dict[str, int], set[str]]:
     start = recent_quarters()[0][1]
     counts: dict[str, int] = {label: 0 for label, _, _ in recent_quarters()}
     if r.host == "gitlab":
         url = f"{gitlab_base(r.api)}/projects/{quote_path(r.repo)}/merge_requests"
         rows = gitlab_paged(url, {"state": "merged", "order_by": "updated_at", "sort": "desc"},
-                            stop=lambda p: parse_time(p.get("merged_at") or p["updated_at"]) < start, limit=20)
+                            stop=lambda p: parse_time(p.get("merged_at") or p["updated_at"]) < start, limit=WINDOW_PAGES)
         times = [parse_time(p["merged_at"]) for p in rows if p.get("merged_at")]
+        cap_hit = len(rows) >= WINDOW_PAGES * host_page_size(r.host)
     else:
         url = f"{forgejo_base(r.host, r.api)}/repos/{r.repo}/pulls"
         rows = forgejo_paged(url, {"state": "closed", "sort": "recentupdate"},
-                             stop=lambda p: parse_time(p["updated_at"]) < start, limit=20)
+                             stop=lambda p: parse_time(p["updated_at"]) < start, limit=WINDOW_PAGES)
         times = [parse_time(p["closed_at"]) for p in rows if p.get("merged") and p.get("closed_at")]
+        cap_hit = len(rows) >= WINDOW_PAGES * host_page_size(r.host)
     for when in times:
         if when >= start:
             counts[quarter_label(when)] = counts.get(quarter_label(when), 0) + 1
-    return counts
+    last_when = None
+    if rows:
+        last = rows[-1]
+        last_when = parse_time(str(last.get("merged_at") or last.get("closed_at") or last["updated_at"]))
+    reached = last_when is not None and last_when <= start
+    if not cap_hit or reached or (times and min(times) <= start):
+        return counts, set(counts)
+    if not times:
+        return {}, set()
+    return counts, covered_quarters(min(times))
 
 
-def count_commits(r: Canonical, start: datetime, end: datetime) -> int:
+def count_commits(r: Canonical, start: datetime, end: datetime) -> int | None:
     if r.host == "github":
         q = f"repo:{r.repo} committer-date:{start.date().isoformat()}..{(end - timedelta(days=1)).date().isoformat()}"
         return gh_search_count("/search/commits", q)
@@ -1360,22 +1449,32 @@ def count_commits(r: Canonical, start: datetime, end: datetime) -> int:
         return len(rows)
     url = f"{forgejo_base(r.host, r.api)}/repos/{r.repo}/commits"
     rows = forgejo_paged(url, {"since": start.isoformat(), "stat": "false", "files": "false", "verification": "false"},
-                         stop=lambda c: parse_time(c["commit"]["committer"]["date"]) < start, limit=30)
+                         stop=lambda c: parse_time(c["commit"]["committer"]["date"]) < start, limit=WINDOW_PAGES)
+    if not window_complete([parse_commit(c) for c in rows], start, WINDOW_PAGES, r.host):
+        return None
     return sum(1 for c in rows if start <= parse_time(c["commit"]["committer"]["date"]) < end)
 
 
-def count_merged_prs(r: Canonical, start: datetime, end: datetime) -> int:
+def count_merged_prs(r: Canonical, start: datetime, end: datetime) -> int | None:
     if r.host == "github":
         q = f"repo:{r.repo} is:pr is:merged merged:{start.date().isoformat()}..{(end - timedelta(days=1)).date().isoformat()}"
         return gh_search_count("/search/issues", q)
     if r.host == "gitlab":
         url = f"{gitlab_base(r.api)}/projects/{quote_path(r.repo)}/merge_requests"
         rows = gitlab_paged(url, {"state": "merged", "order_by": "updated_at", "sort": "desc"},
-                            stop=lambda p: parse_time(p.get("merged_at") or p["updated_at"]) < start, limit=20)
+                            stop=lambda p: parse_time(p.get("merged_at") or p["updated_at"]) < start, limit=WINDOW_PAGES)
+        if len(rows) >= WINDOW_PAGES * host_page_size(r.host):
+            oldest = min((parse_time(p["merged_at"]) for p in rows if p.get("merged_at")), default=None)
+            if oldest is None or oldest > start:
+                return None
         return sum(1 for p in rows if p.get("merged_at") and start <= parse_time(p["merged_at"]) < end)
     url = f"{forgejo_base(r.host, r.api)}/repos/{r.repo}/pulls"
     rows = forgejo_paged(url, {"state": "closed", "sort": "recentupdate"},
-                         stop=lambda p: parse_time(p["updated_at"]) < start, limit=20)
+                         stop=lambda p: parse_time(p["updated_at"]) < start, limit=WINDOW_PAGES)
+    if len(rows) >= WINDOW_PAGES * host_page_size(r.host):
+        oldest = min((parse_time(p["closed_at"]) for p in rows if p.get("merged") and p.get("closed_at")), default=None)
+        if oldest is None or oldest > start:
+            return None
     return sum(1 for p in rows if p.get("merged") and p.get("closed_at") and start <= parse_time(p["closed_at"]) < end)
 
 
@@ -1469,15 +1568,28 @@ def issue_trend(canonical: Canonical | None) -> Metrics:
     else:
         base = forgejo_base(canonical.host, canonical.api)
         src = f"{canonical.web}/issues"
-        opened = len(forgejo_paged(f"{base}/repos/{canonical.repo}/issues", {"state": "all", "type": "issues", "since": start},
-                                   stop=lambda i: parse_time(i.get("created_at") or i["updated_at"]) < parse_time(start + "T00:00:00+00:00"), limit=20))
-        closed = 0
-        note = "Forgejo issue close dates are not counted separately; see opened count only"
-        return {
-            "issues_opened_12m": ok(opened, src, note),
-            "issues_closed_12m": missing(note, src),
-            "issue_close_ratio": missing(note, src),
-        }
+        since = (NOW - timedelta(days=365)).astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+        since_dt = parse_time(since)
+        try:
+            rows = forgejo_paged(
+                f"{base}/repos/{canonical.repo}/issues",
+                {"state": "all", "type": "issues", "since": since},
+                stop=lambda i: parse_time(str(i.get("updated_at") or i["created_at"])) < since_dt,
+                limit=WINDOW_PAGES,
+            )
+        except urllib.error.HTTPError as e:
+            if e.code == 422:
+                note = "not measured: Forgejo rejected the issue query"
+                return {k: missing(note, src) for k in ("issues_opened_12m", "issues_closed_12m", "issue_close_ratio")}
+            raise
+        if len(rows) >= WINDOW_PAGES * host_page_size(canonical.host):
+            oldest = min(parse_time(str(i.get("updated_at") or i["created_at"])) for i in rows)
+            if oldest > since_dt:
+                note = "not measured: too many issues to page through in 12 months"
+                return {k: missing(note, src) for k in ("issues_opened_12m", "issues_closed_12m", "issue_close_ratio")}
+        opened = sum(1 for i in rows if parse_time(str(i["created_at"])) >= since_dt)
+        closed = sum(1 for i in rows if i.get("closed_at") and parse_time(str(i["closed_at"])) >= since_dt)
+        note = None
     ratio = round(closed / opened, 2) if opened else None
     return {
         "issues_opened_12m": ok(opened, src, note),
@@ -1494,7 +1606,7 @@ def package_trend(lang: Language, cached: dict[str, dict[str, int]]) -> Metrics:
         last, prior, src = hex_new_packages()
     else:
         return {k: missing(f"not measured: unknown registry {lang.packages.kind}") for k in keys}
-    change = round(100 * (last - prior) / prior, 1) if prior else (100.0 if last else None)
+    change = pct_change(last, prior, prior_measured=True)
     note = "Hex.pm hosts Elixir, Erlang, and Gleam packages; counts are the shared registry"
     return {
         "packages_last_12m": ok(last, src, note),
@@ -1531,7 +1643,9 @@ def hn_trend(lang: Language, cached: dict[str, dict[str, int]]) -> Metrics:
         if label not in series:
             series[label] = hn_count_best(query, start, end)
     src = "https://hn.algolia.com/?q=" + urllib.parse.quote(hn_queries(query)[0])
-    return {"hn_quarters": series_metric(series, src, f"Algolia HN story search: {query}")}
+    metric = series_metric(series, src, f"Algolia HN story search: {query}")
+    metric["query"] = query
+    return {"hn_quarters": metric}
 
 
 def hn_queries(query: str) -> tuple[str, ...]:
@@ -1647,7 +1761,7 @@ def compact_history_lang(item: dict[str, JSON]) -> dict[str, JSON]:
     for key, val in metrics.items():
         if not isinstance(val, dict):
             continue
-        entry = {k: val[k] for k in ("value", "display", "note", "source", "series", "values") if k in val}
+        entry = {k: val[k] for k in ("value", "display", "note", "source", "series", "values", "query") if k in val}
         if entry:
             keep[key] = entry
     return keep
@@ -1784,7 +1898,7 @@ def trajectory_section(results: list[Result]) -> str:
         "new packages where a registry API exists, Hacker News story mentions, and the trailing 12-month issue close ratio "
         "(issues closed vs opened). A signal counts as up or down when it moves by at least 15%, or when the close ratio "
         "is at least 1.0 or below 0.7; otherwise it is treated as steady. Mixed means the signals disagree. "
-        "The current quarter is partial. Completed-quarter counts are reused from docs/history.jsonl on later runs. "
+        "The current quarter is partial. Completed-quarter counts are reused from docs/history.jsonl on later runs when they are nonzero and, for Hacker News, when the stored query still matches. A zero-to-positive change is counted only when the prior window was fully measured; unmeasured quarters are shown as a dash. "
         "Reddit and forum history is not available from those APIs for a two-year window; later weekly snapshots will fill that gap. "
         "Package growth is included only when a public API provides first-seen dates. "
         "Hacker News counts come from the Algolia HN Search API (story posts) using the query in languages.toml. "
@@ -1798,14 +1912,19 @@ def trajectory_section(results: list[Result]) -> str:
 
 def traj_cell(metrics: Metrics, key: str, spark: bool = False) -> str:
     m = metrics.get(key)
-    if not m or m["value"] is None:
-        note = (m["note"] if m else None) or ""
+    if not m:
+        return f'<td data-v="-999"><span class="nm">not measured</span></td>'
+    shown = m.get("display")
+    if m["value"] is None and not shown:
+        note = m["note"] or ""
         label = "n/a" if note.startswith("none") else "not measured"
         return f'<td data-v="-999"><span class="nm">{label}</span></td>'
-    shown = m.get("display") or (f"{m['value']:+.0f}%" if key.endswith("_pct") else str(m["value"]))
+    if not shown:
+        shown = f"{m['value']:+.0f}%" if key.endswith("_pct") else str(m["value"])
     svg = sparkline(list(m.get("values") or [])) if spark else ""
     src = f' <a class="src" href="{esc(m["source"])}">source</a>' if m.get("source") else ""
-    return f'<td data-v="{m["value"]}">{svg} {esc(shown)}{src}</td>'
+    sort_v = m["value"] if m["value"] is not None else -999
+    return f'<td data-v="{sort_v}">{svg} {esc(shown)}{src}</td>'
 
 
 def governance_block(r: Result) -> str:
