@@ -4,6 +4,10 @@ Scores less mainstream programming languages on development activity, community,
 
 Page: https://public-law.github.io/lang-eval/
 
+It auto-updates on a schedule and on commits to master. 
+Database-less and Serverless, running right here in GitHub actions. 
+
+
 ## Add a language
 
 Add a `[[language]]` block to `languages.toml`. Fields you leave out show as n/a. Manual judgments (`lsp_rating`, `lsp_notes`, `x_notes`) go there too. 
