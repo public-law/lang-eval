@@ -26,7 +26,7 @@ uv run --python 3.12.15 --no-project python -m unittest
 
 ## Add a language
 
-Copy a `[[language]]` block in `languages.toml`. Fields you leave out show as n/a. Manual judgments (`lsp_rating`, `lsp_notes`, `x_notes`) go there too.
+Add a `[[language]]` block to `languages.toml`. Fields you leave out show as n/a. Manual judgments (`lsp_rating`, `lsp_notes`, `x_notes`) go there too.
 
 ## Notes
 
