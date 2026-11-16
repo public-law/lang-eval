@@ -4,7 +4,13 @@ Scores less mainstream programming languages on development activity, community,
 
 Page: https://public-law.github.io/lang-eval/
 
-## Use
+## Add a language
+
+Add a `[[language]]` block to `languages.toml`. Fields you leave out show as n/a. Manual judgments (`lsp_rating`, `lsp_notes`, `x_notes`) go there too. 
+
+
+
+## To install locally
 
 Requires [uv](https://docs.astral.sh/uv/). It installs the pinned Python and runs the script:
 
@@ -24,9 +30,6 @@ uv run --python 3.12.15 --no-project python -m unittest
 
 `languages.toml` is validated on every run. Unknown keys, missing or mistyped fields, bad URLs, ratings outside 1 to 5, and duplicate names are all reported at once with their locations.
 
-## Add a language
-
-Add a `[[language]]` block to `languages.toml`. Fields you leave out show as n/a. Manual judgments (`lsp_rating`, `lsp_notes`, `x_notes`) go there too.
 
 ## Notes
 
